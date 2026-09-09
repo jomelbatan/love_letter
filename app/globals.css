@@ -10,6 +10,9 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-yuyu: var(--font-yuyu);
+  --font-kalam: var(--font-kalam);
+  --font-kalam-bold: var(--font-kalam-bold);
 }
 
 @media (prefers-color-scheme: dark) {
