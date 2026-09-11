@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-type FacebookReelProps = {
+export type VideoPostProps = {
   post: {
     embedUrl?: string;
   };
@@ -37,7 +37,7 @@ function loadFacebookSdk(onReady: () => void) {
   document.body.appendChild(script);
 }
 
-export function FacebookReel({ post }: FacebookReelProps) {
+export function FacebookReel({ post }: VideoPostProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -53,13 +53,7 @@ export function FacebookReel({ post }: FacebookReelProps) {
   return (
     <div className="bg-zinc-950 text-white rounded-xl border border-zinc-800 p-2">
       {post.embedUrl ? (
-        <div
-          className="fb-video"
-          data-href={post.embedUrl}
-          data-width="550"
-          data-show-text="false"
-          data-autoplay="true"
-        />
+        <div className="fb-video" data-href={post.embedUrl} data-width="400" />
       ) : (
         <div className="p-8 text-center text-zinc-400 text-sm">
           Facebook Reel link is missing or unavailable.

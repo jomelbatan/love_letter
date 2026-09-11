@@ -33,9 +33,10 @@ export default function Hero({ user }: HeroProps) {
           </div>
           <div className="flex flex-col  items-center lg:items-start">
             <p className="text-4xl font-kalam-bold">{user.name}</p>
-            <div className="flex flex-row gap-1 font-kalam">
+            <div className="flex flex-row gap-1 font-kalam-bold">
               <p>1 friend</p> · <p>{200} post</p>
             </div>
+            <p className="font-kalam">{user.bio}</p>
           </div>
         </div>
         <div className="flex flex-row gap-2 h-fit">
