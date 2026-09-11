@@ -47,7 +47,6 @@ export default defineSchema({
       v.literal("TEXT"),
       v.literal("LETTER"),
       v.literal("IMAGE"),
-      v.literal("NOTE"),
       v.literal("EMBED"),
     ),
     text: v.optional(v.string()),
@@ -73,7 +72,12 @@ export default defineSchema({
   pendingPosts: defineTable({
     psid: v.string(),
     authorId: v.id("authorAccounts"),
-    type: v.literal("EMBED"),
+    type: v.union(
+      v.literal("TEXT"),
+      v.literal("LETTER"),
+      v.literal("IMAGE"),
+      v.literal("EMBED"),
+    ),
     embedUrl: v.optional(v.string()),
     embedType: v.optional(
       v.union(

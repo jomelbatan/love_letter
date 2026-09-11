@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
   const rawBody = await req.text();
   const signature = req.headers.get("x-hub-signature-256");
 
+  // Verify HMAC signature from Meta
   if (!verifySignature(rawBody, signature, appSecret!)) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
@@ -58,6 +59,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // Meta expects an immediate 200 OK
   return NextResponse.json({ status: "EVENT_RECEIVED" }, { status: 200 });
 }
 
@@ -80,10 +82,14 @@ function verifySignature(
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function handleIncomingMessage(event: any) {
   const senderId: string = event.sender.id;
-  const messageText: string = event.message.text || "";
+  const messageText: string = (event.message.text || "").trim();
+  const rawAttachments = event.message?.attachments;
 
-  console.log(messageText);
-  if (!messageText) return;
+  // Fast check: Only call extractor if attachments actually exist
+  const attachment =
+    rawAttachments && rawAttachments.length > 0
+      ? extractAttachmentUrl(rawAttachments)
+      : null;
 
   const author = await convex.query(api.authorAccount.getAuthorPSID, {
     psid: senderId,
@@ -93,24 +99,23 @@ async function handleIncomingMessage(event: any) {
     console.log(`[Timeline Bot] Unrecognized sender PSID: ${senderId}`);
     await sendReply(senderId, `Connected! Your sender PSID is: ${senderId}`);
     return;
-    console.log("Author: ", author);
   }
 
   try {
-    // 1. Check if user is answering a pending caption prompt
+    // 1. Check if user is answering a pending caption question
     const pendingPost = await convex.query(api.post.getPendingPost, {
       psid: senderId,
     });
 
-    if (pendingPost) {
+    if (pendingPost && messageText) {
       const isNoCaption = /^(no|none|skip|nope)$/i.test(messageText);
       const finalCaption = isNoCaption
         ? pendingPost.initialText || ""
         : messageText;
 
       await convex.mutation(api.post.createPost, {
-        authorId: author.author!._id,
-        type: "EMBED",
+        authorId: author.authorId,
+        type: pendingPost.type,
         text: finalCaption,
         embedUrl: pendingPost.embedUrl,
         embedType: pendingPost.embedType,
@@ -118,9 +123,7 @@ async function handleIncomingMessage(event: any) {
         published: true,
       });
 
-      // Clear pending post session
       await convex.mutation(api.post.clearPendingPost, { psid: senderId });
-
       await sendReply(
         senderId,
         `${author.author!.name} shared it to their timeline 💌`,
@@ -128,16 +131,33 @@ async function handleIncomingMessage(event: any) {
       return;
     }
 
-    // 2. Parse incoming content
-    const { embedType, embedUrl, cleanText, hasUrl } =
-      await parseContent(messageText);
-
-    if (hasUrl) {
-      // If a URL is detected, stash it and prompt for caption
+    // 2. If it's a Reel attachment, save pending post & ask for caption
+    if (attachment && attachment.type === "reel" && attachment.url) {
       await convex.mutation(api.post.savePendingPost, {
         psid: senderId,
         authorId: author._id,
         type: "EMBED",
+        embedUrl: attachment.url, // e.g. "https://www.facebook.com/reel/1631929631609795"
+        embedType: "FACEBOOK",
+        initialText: "",
+      });
+
+      await sendReply(
+        senderId,
+        "Do you want to add some caption write it down or type no",
+      );
+      return;
+    }
+
+    // 3. Fallback to normal text or typed URLs
+    const { type, embedType, embedUrl, cleanText, hasUrl } =
+      await parseContent(messageText);
+
+    if (hasUrl) {
+      await convex.mutation(api.post.savePendingPost, {
+        psid: senderId,
+        authorId: author._id,
+        type,
         embedUrl: embedUrl ?? undefined,
         embedType,
         initialText: cleanText,
@@ -150,19 +170,21 @@ async function handleIncomingMessage(event: any) {
       return;
     }
 
-    // 3. Normal text: create immediately
-    await convex.mutation(api.post.createPost, {
-      authorId: author.author!._id,
-      type: "LETTER",
-      text: messageText,
-      eventDate: Date.now(),
-      published: true,
-    });
+    // 4. Pure text message
+    if (messageText) {
+      await convex.mutation(api.post.createPost, {
+        authorId: author.authorId,
+        type: "LETTER",
+        text: messageText,
+        eventDate: Date.now(),
+        published: true,
+      });
 
-    await sendReply(
-      senderId,
-      `${author.author!.name} shared it to their timeline 💌`,
-    );
+      await sendReply(
+        senderId,
+        `${author.author!.name} shared it to their timeline 💌`,
+      );
+    }
   } catch (err) {
     console.error("[Timeline Bot] Failed to process message:", err);
     await sendReply(senderId, "Oops, could not save this entry. Check logs!");
@@ -170,10 +192,9 @@ async function handleIncomingMessage(event: any) {
 }
 
 async function parseContent(text: string) {
-  console.log("Pure Text: ", text);
   const urlRegex = /https?:\/\/[^\s]+/i;
   const match = text.match(urlRegex);
-  console.log("Match Text: ", match);
+
   // No URL = normal letter/text post
   if (!match) {
     return {
@@ -241,4 +262,29 @@ async function getCanonicalUrl(url: string): Promise<string> {
   } catch {
     return url;
   }
+}
+
+function extractAttachmentUrl(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  attachments: any[],
+): { type: string; url: string | null } | null {
+  const firstAttachment = attachments[0];
+  const type: string = firstAttachment?.type || "";
+  const rawUrl: string = firstAttachment?.payload?.url || "";
+
+  if (!rawUrl) return null;
+
+  // If it's a reel, strip everything starting from '?'
+  if (type === "reel" || rawUrl.includes("/reel/")) {
+    const cleanUrl = rawUrl.split("?")[0];
+    return {
+      type: "reel",
+      url: cleanUrl,
+    };
+  }
+
+  return {
+    type,
+    url: rawUrl,
+  };
 }
