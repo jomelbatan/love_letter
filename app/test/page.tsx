@@ -7,37 +7,24 @@ export default function Test() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
-
+  const url = "https://www.youtube.com/watch/q3lX2p_Uy9I";
   async function handlePress() {
     setLoading(true);
     setError(null);
     setResult(null);
 
     try {
-      const response = await fetch("/api/resolve-facebook", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          url: "https://www.facebook.com/share/v/19ZXFD1j3j/",
-        }),
-      });
+      const response = await fetch(
+        `https://www.youtube.com/oembed?url=${url}&format=json`,
+      );
 
-      // Check if the response returned an error status before parsing JSON
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(
-          `Server returned ${response.status}: ${errorText || response.statusText}`,
-        );
+        throw new Error("Invalid YouTube URL");
       }
 
-      const data = await response.json();
-      console.log("Resolved:", data);
-      setResult(data);
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message || "Something went wrong");
+      return response.json();
+    } catch (error) {
+      console.error("Failed to fetch embed data:", error);
     } finally {
       setLoading(false);
     }

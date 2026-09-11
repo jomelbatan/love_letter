@@ -5,6 +5,7 @@ import Image from "next/image";
 import React from "react";
 import { FacebookReel } from "../micro/FacebookReel";
 import Tiktok from "../micro/Tiktok";
+import Youtube from "../micro/Youtube";
 
 export default function PostCard({
   post,
@@ -54,6 +55,7 @@ export default function PostCard({
         <FacebookReel post={post} />
       )}
       {post.embedUrl && post.embedType === "TIKTOK" && <Tiktok post={post} />}
+      {post.embedUrl && post.embedType === "YOUTUBE" && <Youtube post={post} />}
     </article>
   );
 }

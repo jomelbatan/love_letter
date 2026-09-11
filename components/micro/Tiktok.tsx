@@ -7,7 +7,7 @@ export default function Tiktok({ post }: VideoPostProps) {
   const embedUrl = `https://www.tiktok.com/player/v1/${cleanUrl}?rel=0&controls=1&progress_bar=0&fullscreen_button`;
 
   return (
-    <div className="relative w-full max-w-100 aspect-9/16 rounded-xl overflow-hidden bg-black shadow-lg">
+    <div className="relative w-full max-w-96 aspect-9/16 rounded-xl overflow-hidden bg-black shadow-lg">
       <iframe
         src={embedUrl}
         className="absolute top-0 left-0 w-full h-full"

@@ -57,3 +57,83 @@ export function getTikTokVideoId(url: string): string | null {
   const match = url.match(/\/video\/(\d+)/);
   return match?.[1] ?? null;
 }
+type YouTubeVideo = {
+  id: string;
+  isShort: boolean;
+  aspectRatio: number;
+};
+
+export function parseYouTubeUrl(url: string): YouTubeVideo | null {
+  try {
+    const parsed = new URL(url);
+
+    // youtube.com/shorts/VIDEO_ID
+    if (parsed.pathname.startsWith("/shorts/")) {
+      const id = parsed.pathname.split("/")[2];
+
+      if (!id) return null;
+
+      return {
+        id,
+        isShort: true,
+        aspectRatio: 9 / 16,
+      };
+    }
+
+    // youtube.com/embed/VIDEO_ID
+    if (parsed.pathname.startsWith("/embed/")) {
+      const id = parsed.pathname.split("/")[2];
+
+      if (!id) return null;
+
+      return {
+        id,
+        isShort: false,
+        aspectRatio: 16 / 9,
+      };
+    }
+
+    // youtube.com/watch?v=VIDEO_ID
+    // youtube.com/watch/VIDEO_ID
+    if (parsed.pathname === "/watch") {
+      const id = parsed.searchParams.get("v");
+
+      if (!id) return null;
+
+      return {
+        id,
+        isShort: false,
+        aspectRatio: 16 / 9,
+      };
+    }
+
+    if (parsed.pathname.startsWith("/watch/")) {
+      const id = parsed.pathname.split("/")[2];
+
+      if (!id) return null;
+
+      return {
+        id,
+        isShort: false,
+        aspectRatio: 16 / 9,
+      };
+    }
+
+    // youtu.be/VIDEO_ID
+    if (parsed.hostname === "youtu.be") {
+      const id = parsed.pathname.slice(1);
+
+      if (!id) return null;
+
+      return {
+        id,
+        isShort: false,
+        aspectRatio: 16 / 9,
+      };
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+}

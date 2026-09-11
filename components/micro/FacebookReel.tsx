@@ -51,9 +51,9 @@ export function FacebookReel({ post }: VideoPostProps) {
   }, [post.embedUrl]);
 
   return (
-    <div className="bg-zinc-950 text-white rounded-xl border border-zinc-800 p-2">
+    <div ref={containerRef} className="w-full mx-auto">
       {post.embedUrl ? (
-        <div className="fb-video" data-href={post.embedUrl} data-width="400" />
+        <div className="fb-video" data-href={post.embedUrl} data-width="auto" />
       ) : (
         <div className="p-8 text-center text-zinc-400 text-sm">
           Facebook Reel link is missing or unavailable.
