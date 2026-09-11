@@ -92,3 +92,56 @@ export const getUserTimeline = query({
     };
   },
 });
+
+export const getPendingPost = query({
+  args: { psid: v.string() },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("pendingPosts")
+      .withIndex("by_psid", (q) => q.eq("psid", args.psid))
+      .first();
+  },
+});
+
+export const savePendingPost = mutation({
+  args: {
+    psid: v.string(),
+    authorId: v.id("authorAccounts"),
+    type: v.literal("EMBED"),
+    embedUrl: v.optional(v.string()),
+    embedType: v.optional(
+      v.union(
+        v.literal("SPOTIFY"),
+        v.literal("TIKTOK"),
+        v.literal("FACEBOOK"),
+        v.literal("YOUTUBE"),
+        v.literal("LINK"),
+      ),
+    ),
+    initialText: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    // Remove existing pending entry if any
+    const existing = await ctx.db
+      .query("pendingPosts")
+      .withIndex("by_psid", (q) => q.eq("psid", args.psid))
+      .first();
+    if (existing) {
+      await ctx.db.delete(existing._id);
+    }
+    await ctx.db.insert("pendingPosts", args);
+  },
+});
+
+export const clearPendingPost = mutation({
+  args: { psid: v.string() },
+  handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query("pendingPosts")
+      .withIndex("by_psid", (q) => q.eq("psid", args.psid))
+      .first();
+    if (existing) {
+      await ctx.db.delete(existing._id);
+    }
+  },
+});

@@ -4,7 +4,6 @@ import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 
 type PostType = "TEXT" | "LETTER" | "IMAGE" | "EMBED";
-
 type EmbedType = "SPOTIFY" | "TIKTOK" | "FACEBOOK" | "YOUTUBE" | "LINK";
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
@@ -28,7 +27,6 @@ export async function POST(req: NextRequest) {
   const rawBody = await req.text();
   const signature = req.headers.get("x-hub-signature-256");
 
-  // Verify HMAC signature from Meta
   if (!verifySignature(rawBody, signature, process.env.META_APP_SECRET!)) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
@@ -47,11 +45,9 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Meta expects an immediate 200 OK
   return NextResponse.json({ status: "EVENT_RECEIVED" }, { status: 200 });
 }
 
-// Helper: HMAC verification
 function verifySignature(
   payload: string,
   signatureHeader: string | null,
@@ -68,78 +64,125 @@ function verifySignature(
   return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
 }
 
-// Helper: Core message parser and poster
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function handleIncomingMessage(event: any) {
-  console.log("Event: ", event);
   const senderId: string = event.sender.id;
-  const messageText: string = event.message.text || "";
+  const messageText: string = (event.message.text || "").trim();
 
-  // Map PSID to Author
+  if (!messageText) return;
+
   const author = await convex.query(api.authorAccount.getAuthorPSID, {
     psid: senderId,
   });
 
-  // During setup: if PSID is not yet configured, log it so you can copy it
   if (!author) {
     console.log(`[Timeline Bot] Unrecognized sender PSID: ${senderId}`);
     await sendReply(senderId, `Connected! Your sender PSID is: ${senderId}`);
     return;
   }
 
-  // Parse URLs and determine type
-  const { type, embedType, embedUrl, cleanText } =
-    await parseContent(messageText);
-
   try {
-    // Call internal Convex mutation
+    // 1. Check if user is answering a pending caption prompt
+    const pendingPost = await convex.query(api.post.getPendingPost, {
+      psid: senderId,
+    });
 
+    if (pendingPost) {
+      const isNoCaption = /^(no|none|skip|nope)$/i.test(messageText);
+      const finalCaption = isNoCaption
+        ? pendingPost.initialText || ""
+        : messageText;
+
+      await convex.mutation(api.post.createPost, {
+        authorId: author.author!._id,
+        type: "EMBED",
+        text: finalCaption,
+        embedUrl: pendingPost.embedUrl,
+        embedType: pendingPost.embedType,
+        eventDate: Date.now(),
+        published: true,
+      });
+
+      // Clear pending post session
+      await convex.mutation(api.post.clearPendingPost, { psid: senderId });
+
+      await sendReply(
+        senderId,
+        `${author.author!.name} shared it to their timeline 💌`,
+      );
+      return;
+    }
+
+    // 2. Parse incoming content
+    const { embedType, embedUrl, cleanText, hasUrl } =
+      await parseContent(messageText);
+
+    if (hasUrl) {
+      // If a URL is detected, stash it and prompt for caption
+      await convex.mutation(api.post.savePendingPost, {
+        psid: senderId,
+        authorId: author._id,
+        type: "EMBED",
+        embedUrl: embedUrl ?? undefined,
+        embedType,
+        initialText: cleanText,
+      });
+
+      await sendReply(
+        senderId,
+        "Do you want to add some caption write it down or type no",
+      );
+      return;
+    }
+
+    // 3. Normal text: create immediately
     await convex.mutation(api.post.createPost, {
-      authorId: author._id,
-      type,
-      text: cleanText,
-      embedUrl: embedUrl ?? undefined,
-      embedType,
+      authorId: author.author!._id,
+      type: "LETTER",
+      text: messageText,
       eventDate: Date.now(),
       published: true,
     });
 
-    await sendReply(senderId, `${author.name} shared it their timeline 💌`);
+    await sendReply(
+      senderId,
+      `${author.author!.name} shared it to their timeline 💌`,
+    );
   } catch (err) {
-    console.error("[Timeline Bot] Failed to save post:", err);
+    console.error("[Timeline Bot] Failed to process message:", err);
     await sendReply(senderId, "Oops, could not save this entry. Check logs!");
   }
 }
-//TODO Need some improvement
-// Helper: Detect link type and clean up body
-async function parseContent(text: string) {
-  const urlRegex = /(https?:\/\/[^\s]+)/g;
-  const urls = text.match(urlRegex);
 
-  let embedUrl = urls?.[0] ?? null;
+async function parseContent(text: string) {
+  const urlRegex = /(https?:\/\/[^\s]+)/gi;
+  const matches = text.match(urlRegex);
+
+  let embedUrl: string | null = null;
+  if (matches && matches.length > 0) {
+    embedUrl = matches[0].replace(/[.,!?;:)>]+$/, "");
+  }
 
   let type: PostType = "LETTER";
   let embedType: EmbedType | undefined;
 
   if (embedUrl) {
     type = "EMBED";
+    const lower = embedUrl.toLowerCase();
 
-    if (embedUrl.includes("spotify.com")) {
+    if (lower.includes("spotify.com")) {
       embedType = "SPOTIFY";
-    } else if (embedUrl.includes("tiktok.com")) {
+    } else if (lower.includes("tiktok.com")) {
       embedType = "TIKTOK";
-    } else if (
-      embedUrl.includes("youtube.com") ||
-      embedUrl.includes("youtu.be")
-    ) {
+    } else if (lower.includes("youtube.com") || lower.includes("youtu.be")) {
       embedType = "YOUTUBE";
     } else if (
-      embedUrl.includes("facebook.com") ||
-      embedUrl.includes("instagram.com")
+      lower.includes("facebook.com") ||
+      lower.includes("fb.watch") ||
+      lower.includes("instagram.com")
     ) {
       embedType = "FACEBOOK";
-
-      if (embedUrl.includes("share")) {
+      if (lower.includes("share")) {
         embedUrl = await getCanonicalUrl(embedUrl);
       }
     } else {
@@ -147,17 +190,17 @@ async function parseContent(text: string) {
     }
   }
 
-  const cleanText = text.replace(embedUrl ?? "", "").trim();
+  const cleanText = embedUrl ? text.replace(embedUrl, "").trim() : text.trim();
 
   return {
     type,
     embedType,
     embedUrl,
-    cleanText: cleanText || text,
+    cleanText,
+    hasUrl: Boolean(embedUrl),
   };
 }
 
-// Helper: Send reply back to user via Messenger Send API
 async function sendReply(recipientId: string, messageText: string) {
   await fetch(
     `https://graph.facebook.com/v20.0/me/messages?access_token=${process.env.META_PAGE_ACCESS_TOKEN}`,
@@ -171,6 +214,7 @@ async function sendReply(recipientId: string, messageText: string) {
     },
   );
 }
+
 async function getCanonicalUrl(url: string): Promise<string> {
   try {
     const res = await fetch(url, {

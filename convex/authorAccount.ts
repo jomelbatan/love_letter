@@ -10,7 +10,10 @@ export const getAuthorPSID = query({
       .unique();
 
     if (!account) return;
-
-    return await ctx.db.get(account.authorId);
+    const author = await ctx.db.get(account.authorId);
+    return {
+      ...account,
+      author,
+    };
   },
 });

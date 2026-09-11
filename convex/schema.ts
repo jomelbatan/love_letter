@@ -69,4 +69,21 @@ export default defineSchema({
     .index("by_author", ["authorId"])
     .index("by_published", ["published"])
     .index("by_author_published", ["authorId", "published"]),
+
+  pendingPosts: defineTable({
+    psid: v.string(),
+    authorId: v.id("authorAccounts"),
+    type: v.literal("EMBED"),
+    embedUrl: v.optional(v.string()),
+    embedType: v.optional(
+      v.union(
+        v.literal("SPOTIFY"),
+        v.literal("TIKTOK"),
+        v.literal("FACEBOOK"),
+        v.literal("YOUTUBE"),
+        v.literal("LINK"),
+      ),
+    ),
+    initialText: v.optional(v.string()),
+  }).index("by_psid", ["psid"]),
 });
