@@ -155,49 +155,47 @@ async function handleIncomingMessage(event: any) {
 }
 
 async function parseContent(text: string) {
-  const urlRegex = /(https?:\/\/[^\s]+)/gi;
-  const matches = text.match(urlRegex);
+  const urlRegex = /https?:\/\/[^\s]+/i;
+  const match = text.match(urlRegex);
 
-  let embedUrl: string | null = null;
-  if (matches && matches.length > 0) {
-    embedUrl = matches[0].replace(/[.,!?;:)>]+$/, "");
+  // No URL = normal letter/text post
+  if (!match) {
+    return {
+      type: "LETTER" as PostType,
+      embedType: undefined,
+      embedUrl: null,
+      cleanText: text.trim(),
+      hasUrl: false,
+    };
   }
 
-  let type: PostType = "LETTER";
-  let embedType: EmbedType | undefined;
+  let embedUrl = match[0].replace(/[.,!?;:)>]+$/, "");
+  const lower = embedUrl.toLowerCase();
 
-  if (embedUrl) {
-    type = "EMBED";
-    const lower = embedUrl.toLowerCase();
+  let embedType: EmbedType;
 
-    if (lower.includes("spotify.com")) {
-      embedType = "SPOTIFY";
-    } else if (lower.includes("tiktok.com")) {
-      embedType = "TIKTOK";
-    } else if (lower.includes("youtube.com") || lower.includes("youtu.be")) {
-      embedType = "YOUTUBE";
-    } else if (
-      lower.includes("facebook.com") ||
-      lower.includes("fb.watch") ||
-      lower.includes("instagram.com")
-    ) {
-      embedType = "FACEBOOK";
-      if (lower.includes("share")) {
-        embedUrl = await getCanonicalUrl(embedUrl);
-      }
-    } else {
-      embedType = "LINK";
+  if (lower.includes("spotify.com")) {
+    embedType = "SPOTIFY";
+  } else if (lower.includes("tiktok.com")) {
+    embedType = "TIKTOK";
+  } else if (lower.includes("youtube.com") || lower.includes("youtu.be")) {
+    embedType = "YOUTUBE";
+  } else if (lower.includes("facebook.com") || lower.includes("fb.watch")) {
+    embedType = "FACEBOOK";
+
+    if (lower.includes("facebook.com/share/")) {
+      embedUrl = await getCanonicalUrl(embedUrl);
     }
+  } else {
+    embedType = "LINK";
   }
-
-  const cleanText = embedUrl ? text.replace(embedUrl, "").trim() : text.trim();
 
   return {
-    type,
+    type: "EMBED" as PostType,
     embedType,
     embedUrl,
-    cleanText,
-    hasUrl: Boolean(embedUrl),
+    cleanText: text.replace(match[0], "").trim(),
+    hasUrl: true,
   };
 }
 
