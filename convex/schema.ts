@@ -34,6 +34,13 @@ export default defineSchema({
     ),
   }).index("by_name", ["name"]),
 
+  authorAccounts: defineTable({
+    authorId: v.id("authors"),
+    psid: v.string(),
+  })
+    .index("by_psid", ["psid"])
+    .index("by_author", ["authorId"]),
+
   posts: defineTable({
     authorId: v.id("authors"),
     type: v.union(

@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: [
+    process.env.NEXT_PUBLIC_VERCEL_DEV_ORIGIN,
+    process.env.NEXT_PUBLIC_CLOUDFLARE_TUNNEL_ORIGIN,
+  ].filter((origin): origin is string => Boolean(origin)),
+
   images: {
     remotePatterns: [
       {

@@ -9,6 +9,7 @@
  */
 
 import type * as author from "../author.js";
+import type * as authorAccount from "../authorAccount.js";
 import type * as post from "../post.js";
 
 import type {
@@ -19,6 +20,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   author: typeof author;
+  authorAccount: typeof authorAccount;
   post: typeof post;
 }>;
 

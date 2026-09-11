@@ -72,15 +72,14 @@ function verifySignature(
 // Helper: Core message parser and poster
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function handleIncomingMessage(event: any) {
+  console.log("Event: ", event);
   const senderId: string = event.sender.id;
   const messageText: string = event.message.text || "";
 
   // Map PSID to Author
-  let author: string | null = null;
-  if (senderId === process.env.AUTHOR_1_PSID)
-    author = "j97176ca25t6bkt8r4psq4mdex8e4t21";
-  if (senderId === process.env.AUTHOR_2_PSID)
-    author = "j977qba8jbq3y0fgtdqwspercs8e4nxg";
+  const author = await convex.query(api.authorAccount.getAuthorPSID, {
+    psid: senderId,
+  });
 
   // During setup: if PSID is not yet configured, log it so you can copy it
   if (!author) {
@@ -96,7 +95,7 @@ async function handleIncomingMessage(event: any) {
     // Call internal Convex mutation
 
     await convex.mutation(api.post.createPost, {
-      authorId: author as Id<"authors">,
+      authorId: author,
       type,
       text: cleanText,
       embedUrl: embedUrl ?? undefined,
