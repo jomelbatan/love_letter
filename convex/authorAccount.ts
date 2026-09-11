@@ -4,13 +4,13 @@ import { query } from "./_generated/server";
 export const getAuthorPSID = query({
   args: { psid: v.string() },
   handler: async (ctx, args) => {
-    const instance = await ctx.db
+    const account = await ctx.db
       .query("authorAccounts")
       .withIndex("by_psid", (q) => q.eq("psid", args.psid))
       .unique();
 
-    if (!instance) return;
+    if (!account) return;
 
-    return instance.authorId;
+    return await ctx.db.get(account.authorId);
   },
 });

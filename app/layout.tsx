@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { kalam, kalamBold, yuyu } from "@/libs/fonts";
 import ConvexClientProvider from "@/providers/ConvexProvides";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "Scratched",
@@ -19,6 +20,8 @@ export default function RootLayout({
       className={`${kalam.variable} ${kalamBold.variable} ${yuyu.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <div id="fb-root"></div>
+
         <ConvexClientProvider>{children}</ConvexClientProvider>
       </body>
     </html>

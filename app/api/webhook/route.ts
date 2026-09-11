@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
 
 type PostType = "TEXT" | "LETTER" | "IMAGE" | "EMBED";
 
@@ -89,13 +88,14 @@ async function handleIncomingMessage(event: any) {
   }
 
   // Parse URLs and determine type
-  const { type, embedType, embedUrl, cleanText } = parseContent(messageText);
+  const { type, embedType, embedUrl, cleanText } =
+    await parseContent(messageText);
 
   try {
     // Call internal Convex mutation
 
     await convex.mutation(api.post.createPost, {
-      authorId: author,
+      authorId: author._id,
       type,
       text: cleanText,
       embedUrl: embedUrl ?? undefined,
@@ -104,19 +104,19 @@ async function handleIncomingMessage(event: any) {
       published: true,
     });
 
-    await sendReply(senderId, "Saved to the timeline 💌");
+    await sendReply(senderId, `${author.name} shared it their timeline 💌`);
   } catch (err) {
     console.error("[Timeline Bot] Failed to save post:", err);
     await sendReply(senderId, "Oops, could not save this entry. Check logs!");
   }
 }
-
+//TODO Need some improvement
 // Helper: Detect link type and clean up body
-function parseContent(text: string) {
+async function parseContent(text: string) {
   const urlRegex = /(https?:\/\/[^\s]+)/g;
   const urls = text.match(urlRegex);
 
-  const embedUrl = urls?.[0] ?? null;
+  let embedUrl = urls?.[0] ?? null;
 
   let type: PostType = "LETTER";
   let embedType: EmbedType | undefined;
@@ -134,10 +134,14 @@ function parseContent(text: string) {
     ) {
       embedType = "YOUTUBE";
     } else if (
-      embedUrl.includes("facebook.com/reel") ||
-      embedUrl.includes("instagram.com/reel")
+      embedUrl.includes("facebook.com") ||
+      embedUrl.includes("instagram.com")
     ) {
       embedType = "FACEBOOK";
+
+      if (embedUrl.includes("share")) {
+        embedUrl = await getCanonicalUrl(embedUrl);
+      }
     } else {
       embedType = "LINK";
     }
@@ -166,4 +170,9 @@ async function sendReply(recipientId: string, messageText: string) {
       }),
     },
   );
+}
+function getCanonicalUrl(
+  embedUrl: string,
+): string | PromiseLike<string | null> | null {
+  throw new Error("Function not implemented.");
 }

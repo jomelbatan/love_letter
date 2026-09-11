@@ -8,6 +8,7 @@ import PersonalDetailsCard from "./cards/PersonalDetailsCard";
 import { AuthorandPostProps } from "./pages/TimelinePage";
 import Locked from "./cards/Locked";
 import PostCard from "./cards/PostCard";
+import FacebookReelPostCard from "./cards/FacebookReelPostCard";
 
 export default function ProfileLayout({ author, posts }: AuthorandPostProps) {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -72,9 +73,18 @@ export default function ProfileLayout({ author, posts }: AuthorandPostProps) {
               </h1>
             )}
             {/* Dynamic Post Feed */}
-            {posts.page.map((post) => (
-              <PostCard key={post._id} post={post} author={author} />
-            ))}
+            {posts.page.map((post) => {
+              if (post.type === "EMBED" && post.embedType === "FACEBOOK") {
+                return (
+                  <FacebookReelPostCard
+                    key={post._id}
+                    post={post}
+                    author={author}
+                  />
+                );
+              }
+              return <PostCard key={post._id} post={post} author={author} />;
+            })}
 
             {/* Infinite Scroll Trigger element */}
             <div

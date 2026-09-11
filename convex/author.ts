@@ -25,7 +25,6 @@ export const getAuthorByName = query({
       .query("authors")
       .withIndex("by_name", (q) => q.eq("name", args.name))
       .unique();
-    console.log(author, args.name);
     if (!author) return;
 
     return author;
