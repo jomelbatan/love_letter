@@ -1,8 +1,9 @@
 @import "tailwindcss";
+@plugin "daisyui";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: var(--color-chalk-cream);
+  --foreground: var(--color-deep-charcoal);
 }
 
 @theme inline {
@@ -10,16 +11,39 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-yuyu: var(--font-yuyu);
-  --font-kalam: var(--font-kalam);
-  --font-kalam-bold: var(--font-kalam-bold);
-}
+  --font-yuyu: var(--font-yuyu-family);
+  --font-kalam: var(--font-kalam-family);
+  --font-kalam-bold: var(--font-kalam-bold-family);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-primary-orange: #e0a36d;
+  --color-accent-pink: #f4c5cd;
+  --color-text-brown: #5c4b40;
+  --color-off-white: #fff6ea;
+
+  /**Page Background**/
+  --color-chalk-cream: #faf5ef;
+  /**Border / Divider**/
+  --color-soft-dust: #e8dfd5;
+  /**Card Surface**/
+  --color-pure-chalk: #ffffff;
+  /**Primary Text**/
+  --color-deep-charcoal: #3a2e2b;
+  /**Muted Text**/
+  --color-warm-dust: #786b62;
+
+  /**Primary Action**/
+  --color-chalk-terracotta: #e58e6d;
+  /**Primary Soft Tint**/
+  --color-peach-milk: #fdeee6;
+  /**Secondary Action**/
+  --color-dusty-pink: #f1bdc4;
+  /**Link Accent**/
+  --color-chalk-perwinkle: #5c7cfa;
+
+  --color-chalk-butter-yellow: #f7e4a9;
+  --color-pastel-sage: #b8d8ba;
+  --color-chalk-lavender: #dbc7e3;
+  --color-mint-foam: #c4e5e1;
 }
 
 body {

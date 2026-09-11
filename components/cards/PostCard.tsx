@@ -1,0 +1,53 @@
+import { Doc } from "@/convex/_generated/dataModel";
+import { getTimeAgo } from "@/libs/date";
+import { BadgeCheck, Globe, MoreHorizontal } from "lucide-react";
+import Image from "next/image";
+import React from "react";
+
+export default function PostCard({
+  post,
+  author,
+}: {
+  post: Doc<"posts">;
+  author: Doc<"authors">;
+}) {
+  if (!post) return;
+  return (
+    <article
+      key={post._id}
+      className="bg-pure-chalk rounded-xl p-4 border border-soft-dust space-y-3"
+    >
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-3">
+          <div className="avatar size-14 bg-chalk-cream rounded-full border border-chalk-terracotta">
+            <Image
+              src={author.avatarUrl}
+              alt={`${author.name}'s avatar`}
+              fill
+              className="object-cover rounded-full"
+            />
+          </div>
+          <div>
+            <div className="flex items-center gap-1">
+              <span className="font-kalam-bold text-2xl">{author.name}</span>
+              <BadgeCheck className="size-5" />
+            </div>
+            <div className="flex items-center text-xs text-zinc-400">
+              <span>{getTimeAgo(post._creationTime)}</span>
+              <span>·</span>
+              <Globe className="w-3 h-3 inline" />
+            </div>
+          </div>
+        </div>
+
+        <button className="text-zinc-400 hover:text-zinc-200 p-1">
+          <MoreHorizontal className="w-5 h-5" />
+        </button>
+      </div>
+
+      <p className="text-3xl font-bold font-yuyu text-deep-charcoal  leading-none">
+        {post.text}
+      </p>
+    </article>
+  );
+}
