@@ -7,6 +7,19 @@ type PostType = "TEXT" | "LETTER" | "IMAGE" | "EMBED";
 type EmbedType = "SPOTIFY" | "TIKTOK" | "FACEBOOK" | "YOUTUBE" | "LINK";
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+const metaToken =
+  process.env.NODE_ENV === "development"
+    ? process.env.DEV_META_VERIFY_TOKEN
+    : process.env.META_VERIFY_TOKEN;
+const pageAccessToken =
+  process.env.NODE_ENV === "development"
+    ? process.env.DEV_META_PAGE_ACCESS_TOKEN
+    : process.env.META_PAGE_ACCESS_TOKEN;
+
+const appSecret =
+  process.env.NODE_ENV === "development"
+    ? process.env.DEV_META_APP_SECRET
+    : process.env.META_APP_SECRET;
 
 // 1. GET: Webhook Verification Challenge
 export async function GET(req: NextRequest) {
@@ -15,7 +28,7 @@ export async function GET(req: NextRequest) {
   const token = searchParams.get("hub.verify_token");
   const challenge = searchParams.get("hub.challenge");
 
-  if (mode === "subscribe" && token === process.env.META_VERIFY_TOKEN) {
+  if (mode === "subscribe" && token === metaToken) {
     return new Response(challenge, { status: 200 });
   }
 
@@ -27,7 +40,7 @@ export async function POST(req: NextRequest) {
   const rawBody = await req.text();
   const signature = req.headers.get("x-hub-signature-256");
 
-  if (!verifySignature(rawBody, signature, process.env.META_APP_SECRET!)) {
+  if (!verifySignature(rawBody, signature, appSecret!)) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
@@ -67,8 +80,9 @@ function verifySignature(
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function handleIncomingMessage(event: any) {
   const senderId: string = event.sender.id;
-  const messageText: string = (event.message.text || "").trim();
+  const messageText: string = event.message.text || "";
 
+  console.log(messageText);
   if (!messageText) return;
 
   const author = await convex.query(api.authorAccount.getAuthorPSID, {
@@ -79,6 +93,7 @@ async function handleIncomingMessage(event: any) {
     console.log(`[Timeline Bot] Unrecognized sender PSID: ${senderId}`);
     await sendReply(senderId, `Connected! Your sender PSID is: ${senderId}`);
     return;
+    console.log("Author: ", author);
   }
 
   try {
@@ -155,9 +170,10 @@ async function handleIncomingMessage(event: any) {
 }
 
 async function parseContent(text: string) {
+  console.log("Pure Text: ", text);
   const urlRegex = /https?:\/\/[^\s]+/i;
   const match = text.match(urlRegex);
-
+  console.log("Match Text: ", match);
   // No URL = normal letter/text post
   if (!match) {
     return {
@@ -201,7 +217,7 @@ async function parseContent(text: string) {
 
 async function sendReply(recipientId: string, messageText: string) {
   await fetch(
-    `https://graph.facebook.com/v20.0/me/messages?access_token=${process.env.META_PAGE_ACCESS_TOKEN}`,
+    `https://graph.facebook.com/v20.0/me/messages?access_token=${pageAccessToken}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
