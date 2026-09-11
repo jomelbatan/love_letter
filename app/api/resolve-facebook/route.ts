@@ -56,16 +56,3 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-async function getCanonicalUrl(url: string): Promise<string> {
-  try {
-    const res = await fetch(url, {
-      method: "GET",
-      redirect: "manual",
-      headers: { "User-Agent": "facebookexternalhit/1.1" },
-    });
-    const location = res.headers.get("location");
-    return (location || url).split("?")[0];
-  } catch {
-    return url;
-  }
-}

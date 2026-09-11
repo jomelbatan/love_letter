@@ -171,8 +171,16 @@ async function sendReply(recipientId: string, messageText: string) {
     },
   );
 }
-function getCanonicalUrl(
-  embedUrl: string,
-): string | PromiseLike<string | null> | null {
-  throw new Error("Function not implemented.");
+async function getCanonicalUrl(url: string): Promise<string> {
+  try {
+    const res = await fetch(url, {
+      method: "GET",
+      redirect: "manual",
+      headers: { "User-Agent": "facebookexternalhit/1.1" },
+    });
+    const location = res.headers.get("location");
+    return (location || url).split("?")[0];
+  } catch {
+    return url;
+  }
 }
