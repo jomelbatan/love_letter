@@ -37,6 +37,7 @@ export default defineSchema({
   authorAccounts: defineTable({
     authorId: v.id("authors"),
     psid: v.string(),
+    pendingDeletePostId: v.optional(v.id("posts")),
   })
     .index("by_psid", ["psid"])
     .index("by_author", ["authorId"]),

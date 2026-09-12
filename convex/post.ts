@@ -93,6 +93,7 @@ export const getUserTimeline = query({
   },
 });
 
+//For Caption
 export const getPendingPost = query({
   args: { psid: v.string() },
   handler: async (ctx, args) => {
@@ -145,6 +146,66 @@ export const clearPendingPost = mutation({
       .query("pendingPosts")
       .withIndex("by_psid", (q) => q.eq("psid", args.psid))
       .first();
+    if (existing) {
+      await ctx.db.delete(existing._id);
+    }
+  },
+});
+
+//For Deletion
+export const getPendingDelete = query({
+  args: { psid: v.string() },
+  handler: async (ctx, args) => {
+    const author = await ctx.db
+      .query("authorAccounts")
+      .withIndex("by_psid", (q) => q.eq("psid", args.psid))
+      .first();
+
+    if (!author?.pendingDeletePostId) return null;
+
+    return { postId: author.pendingDeletePostId };
+  },
+});
+
+export const savePendingDelete = mutation({
+  args: {
+    psid: v.string(),
+    postId: v.id("posts"),
+  },
+  handler: async (ctx, args) => {
+    const author = await ctx.db
+      .query("authorAccounts")
+      .withIndex("by_psid", (q) => q.eq("psid", args.psid))
+      .first();
+
+    if (!author) throw new Error("Author account not found");
+
+    await ctx.db.patch(author._id, {
+      pendingDeletePostId: args.postId,
+    });
+  },
+});
+
+export const clearPendingDelete = mutation({
+  args: { psid: v.string() },
+  handler: async (ctx, args) => {
+    const author = await ctx.db
+      .query("authorAccounts")
+      .withIndex("by_psid", (q) => q.eq("psid", args.psid))
+      .first();
+
+    if (author && author.pendingDeletePostId) {
+      await ctx.db.patch(author._id, {
+        pendingDeletePostId: undefined,
+      });
+    }
+  },
+});
+
+export const deletePost = mutation({
+  args: { postId: v.id("posts") },
+  handler: async (ctx, args) => {
+    const existing = await ctx.db.get("posts", args.postId);
     if (existing) {
       await ctx.db.delete(existing._id);
     }

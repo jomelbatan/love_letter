@@ -13,7 +13,7 @@ export const getAuthorPSID = query({
     const author = await ctx.db.get(account.authorId);
     return {
       ...account,
-      author,
+      author: { name: author?.name },
     };
   },
 });

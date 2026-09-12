@@ -1,13 +1,13 @@
 import { Doc } from "@/convex/_generated/dataModel";
 import { getTimeAgo } from "@/libs/date";
-import { BadgeCheck, Globe, MoreHorizontal } from "lucide-react";
+import { BadgeCheck, Globe } from "lucide-react";
 import Image from "next/image";
 import React from "react";
 import { FacebookReel } from "../micro/FacebookReel";
 import Tiktok from "../micro/Tiktok";
 import Youtube from "../micro/Youtube";
 import Spotify from "../micro/Spotify";
-import Facebook from "../micro/Facebook";
+import { CopyButton } from "../button/CopyButton";
 
 export default function PostCard({
   post,
@@ -42,9 +42,7 @@ export default function PostCard({
           </div>
         </div>
 
-        <button className="text-zinc-400 hover:text-zinc-200 p-1">
-          <MoreHorizontal className="w-5 h-5" />
-        </button>
+        <CopyButton textToCopy={post._id} />
       </div>
 
       {post.text && (
