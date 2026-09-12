@@ -150,6 +150,7 @@ export async function handleIncomingMessage(event: any) {
     // 1. Pending delete confirmation check (takes precedence over new commands)
     const handledPendingDelete = await handlePendingDelete(
       senderId,
+      author,
       messageText,
     );
     if (handledPendingDelete) return;
@@ -189,6 +190,7 @@ export async function handleIncomingMessage(event: any) {
 
 async function handlePendingDelete(
   senderId: string,
+  author: AuthorRecord,
   messageText: string,
 ): Promise<boolean> {
   const pendingDelete = await convex.query(api.post.getPendingDelete, {
@@ -203,6 +205,7 @@ async function handlePendingDelete(
   if (isConfirmed) {
     await convex.mutation(api.post.deletePost, {
       postId: pendingDelete.postId,
+      authorId: author.authorId,
     });
     await convex.mutation(api.post.clearPendingDelete, { psid: senderId });
     await sendReply(senderId, "Post deleted successfully 🗑️");
