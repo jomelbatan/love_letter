@@ -51,7 +51,12 @@ export const createPost = mutation({
   },
 
   handler: async (ctx, args) => {
-    return await ctx.db.insert("posts", args);
+    const author = await ctx.db.get(args.authorId);
+    const post = await ctx.db.insert("posts", args);
+    ctx.db.patch(args.authorId, {
+      postCount: author!.postCount + 1,
+    });
+    return post;
   },
 });
 
@@ -182,11 +187,15 @@ export const clearPendingDelete = mutation({
 });
 
 export const deletePost = mutation({
-  args: { postId: v.id("posts") },
+  args: { postId: v.id("posts"), authorId: v.id("authors") },
   handler: async (ctx, args) => {
+    const author = await ctx.db.get("authors", args.authorId);
     const existing = await ctx.db.get("posts", args.postId);
-    if (existing) {
+    if (existing && author) {
       await ctx.db.delete(existing._id);
+      ctx.db.patch(author._id, {
+        postCount: author!.postCount - 1,
+      });
     }
   },
 });

@@ -1,11 +1,8 @@
 import { Pointer, UserRoundCheck, UserRoundPlus } from "lucide-react";
 import Cover from "../../public/images/cover.png";
 import Image from "next/image";
-import { Doc } from "@/convex/_generated/dataModel";
-
-export interface AuthorProps {
-  author: Doc<"authors">;
-}
+import { formatWordS } from "@/libs/date";
+import { AuthorProps } from "@/types/props";
 
 export default function Hero({ author }: AuthorProps) {
   return (
@@ -34,7 +31,13 @@ export default function Hero({ author }: AuthorProps) {
           <div className="flex flex-col  items-center lg:items-start">
             <p className="text-4xl font-kalam-bold">{author.name}</p>
             <div className="flex flex-row gap-1 font-kalam-bold">
-              <p>1 friend</p> · <p>{200} post</p>
+              <p>1 friend</p>
+              {author.postCount > 1 && (
+                <>
+                  ·
+                  <p>{`${author.postCount} ${formatWordS("post", author.postCount)}`}</p>
+                </>
+              )}
             </div>
             <p className="font-kalam">{author.bio}</p>
           </div>

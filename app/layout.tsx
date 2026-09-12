@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { kalam, kalamBold, yuyu } from "@/libs/fonts";
 import ConvexClientProvider from "@/providers/ConvexProvides";
-import Script from "next/script";
+import ProfileProvider from "@/providers/ProfileProvider";
 
 export const metadata: Metadata = {
   title: "Scratched",

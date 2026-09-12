@@ -117,3 +117,7 @@ export function getTimeAgo(timestamp: number): string {
     })
   );
 }
+
+export function formatWordS(word: string, count: number) {
+  return `${word}${count > 1 ? "s" : ""}`;
+}

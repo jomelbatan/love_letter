@@ -6,22 +6,13 @@ import PersonalDetailsCard from "../cards/PersonalDetailsCard";
 import Locked from "../cards/Locked";
 import PostCard from "../cards/PostCard";
 import { useEffect, useRef } from "react";
-import { usePaginatedQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { AuthorProps } from "./Hero";
+import FriendsCard from "../cards/FriendsCard";
+import { AuthorProps } from "@/types/props";
+import { usePost } from "@/providers/PostProvider";
 
 export default function ProfileLayout({ author }: AuthorProps) {
+  const { posts, loadMore, status, isLoading } = usePost();
   const loadMoreRef = useRef<HTMLDivElement>(null);
-
-  const {
-    results: posts,
-    status,
-    loadMore,
-  } = usePaginatedQuery(
-    api.post.getUserTimeline,
-    author ? { authorId: author._id } : "skip",
-    { initialNumItems: 10 },
-  );
 
   const isLoadingMore = status === "LoadingMore";
   const hasMore = status === "CanLoadMore";
@@ -53,13 +44,15 @@ export default function ProfileLayout({ author }: AuthorProps) {
     <div className="w-full">
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] items-start gap-4">
-          <aside className="lg:sticky lg:top-4 space-y-4">
-            {(author.personalDetails ||
-              author.work ||
-              author.education ||
-              author.contactInfo) && <PersonalDetailsCard author={author} />}
-
-            <PhotoCard />
+          <aside className="lg:self-start">
+            <div className="lg:sticky lg:top-4 flex flex-col gap-4">
+              {(author.personalDetails ||
+                author.work ||
+                author.education ||
+                author.contactInfo) && <PersonalDetailsCard author={author} />}
+              {<FriendsCard />}
+              {<PhotoCard authorId={author._id} />}
+            </div>
           </aside>
 
           <main className="space-y-4">
@@ -89,17 +82,19 @@ export default function ProfileLayout({ author }: AuthorProps) {
             {/* Infinite scroll trigger */}
             <div
               ref={loadMoreRef}
-              className="py-6 flex justify-center text-sm text-zinc-400"
+              className="py-6 flex justify-center border-t border-soft-dust"
             >
               {isLoadingMore ? (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 text-3xl font-kalam-bold text-deep-charcoal text-center">
                   <div className="w-4 h-4 border-2 border-zinc-400 border-t-transparent rounded-full animate-spin" />
                   Loading more posts...
                 </div>
               ) : hasMore ? (
-                <span>Loading more when you get closer...</span>
+                <span className="text-3xl font-kalam-bold text-deep-charcoal text-center">
+                  Loading more when you get closer...
+                </span>
               ) : posts.length > 0 ? (
-                <span>No more posts</span>
+                <span className="  text-3xl font-kalam-bold text-deep-charcoal text-center">{`You've reached the end`}</span>
               ) : null}
             </div>
           </main>

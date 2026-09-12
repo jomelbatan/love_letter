@@ -5,6 +5,7 @@ export default defineSchema({
   authors: defineTable({
     name: v.string(),
     avatarUrl: v.string(),
+    postCount: v.number(),
     personalDetails: v.optional(
       v.object({
         location: v.optional(v.string()),
@@ -91,6 +92,15 @@ export default defineSchema({
     ),
     initialText: v.optional(v.string()),
   }).index("by_psid", ["psid"]),
+
+  photos: defineTable({
+    authorId: v.id("authors"),
+    storageId: v.id("_storage"),
+    postId: v.optional(v.id("posts")),
+    caption: v.optional(v.string()),
+  })
+    .index("by_author", ["authorId"])
+    .index("by_post", ["postId"]),
 
   follows: defineTable({
     followerId: v.id("authors"),

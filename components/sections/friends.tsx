@@ -1,17 +1,11 @@
-import { api } from "@/convex/_generated/api";
-import { useQuery } from "convex/react";
+import { useProfile } from "@/providers/ProfileProvider";
 import { MoreHorizontal } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-interface FriendsProps {
-  name: string;
-}
-
-export default function Friends({ name }: FriendsProps) {
-  const friends = useQuery(api.author.notMe, { name });
-
+export default function Friends() {
+  const { friends, friendsLoading } = useProfile();
   return (
     <section className="bg-pure-chalk rounded-xl p-4 shadow-sm border border-soft-dust">
       <h2 className="text-xl font-kalam-bold text-deep-charcoal">Friends</h2>
@@ -27,7 +21,7 @@ export default function Friends({ name }: FriendsProps) {
         </p>
       </div>
       {/* Loading */}
-      {friends === undefined && (
+      {friendsLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {[1, 2, 3, 4].map((item) => (
             <div
@@ -42,8 +36,7 @@ export default function Friends({ name }: FriendsProps) {
             </div>
           ))}
         </div>
-      )}
-      {friends &&
+      ) : (
         friends.map((f) => (
           <div
             className="
@@ -85,7 +78,8 @@ export default function Friends({ name }: FriendsProps) {
             {/* Actions */}
             <MoreHorizontal className="shrink-0 text-primary-orange" />
           </div>
-        ))}
+        ))
+      )}
     </section>
   );
 }
