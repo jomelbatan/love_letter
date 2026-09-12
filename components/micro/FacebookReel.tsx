@@ -28,6 +28,8 @@ function loadFacebookSdk(onReady: () => void) {
 
 export function FacebookReel({ post }: VideoPostProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const isPost =
+    post.embedUrl?.includes("photo") || post.embedUrl?.includes("post");
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -93,11 +95,20 @@ export function FacebookReel({ post }: VideoPostProps) {
           isLoading ? "opacity-0" : "opacity-100"
         }`}
       >
-        <div
-          className="fb-video rounded-xl"
-          data-href={post.embedUrl}
-          data-width="auto"
-        />
+        {isPost ? (
+          <div
+            className={`fb-post rounded-xl`}
+            data-href={post.embedUrl}
+            data-width="auto"
+            data-show-text={false}
+          />
+        ) : (
+          <div
+            className={`fb-video rounded-xl`}
+            data-href={post.embedUrl}
+            data-width="auto"
+          />
+        )}
       </div>
     </div>
   );
