@@ -137,3 +137,28 @@ export function parseYouTubeUrl(url: string): YouTubeVideo | null {
     return null;
   }
 }
+type SpotifyType = "track" | "episode" | "playlist";
+
+type SpotifyInfo = {
+  id: string;
+  type: SpotifyType;
+};
+
+export function getSpotifyInfo(url: string): SpotifyInfo | null {
+  try {
+    const { pathname } = new URL(url);
+
+    const match = pathname.match(/^\/(track|episode|playlist)\/([^/?#]+)/);
+
+    if (!match) return null;
+
+    const [, type, id] = match;
+
+    return {
+      id,
+      type: type as SpotifyType,
+    };
+  } catch {
+    return null;
+  }
+}

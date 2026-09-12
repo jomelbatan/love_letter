@@ -6,6 +6,8 @@ import React from "react";
 import { FacebookReel } from "../micro/FacebookReel";
 import Tiktok from "../micro/Tiktok";
 import Youtube from "../micro/Youtube";
+import Spotify from "../micro/Spotify";
+import Facebook from "../micro/Facebook";
 
 export default function PostCard({
   post,
@@ -16,7 +18,7 @@ export default function PostCard({
 }) {
   if (!post) return;
   return (
-    <article className="bg-pure-chalk rounded-xl p-4 border border-soft-dust space-y-3 flex flex-col items-center justify-center">
+    <article className="bg-pure-chalk rounded-xl p-4 border border-soft-dust space-y-3 flex h-fit flex-col items-center justify-center">
       <div className="flex w-full items-start justify-between">
         <div className="flex items-center gap-3">
           <div className="avatar size-14 bg-chalk-cream rounded-full border border-chalk-terracotta">
@@ -56,6 +58,7 @@ export default function PostCard({
       )}
       {post.embedUrl && post.embedType === "TIKTOK" && <Tiktok post={post} />}
       {post.embedUrl && post.embedType === "YOUTUBE" && <Youtube post={post} />}
+      {post.embedUrl && post.embedType === "SPOTIFY" && <Spotify post={post} />}
     </article>
   );
 }

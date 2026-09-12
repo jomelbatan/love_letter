@@ -8,5 +8,7 @@ declare global {
       };
     };
     fbAsyncInit?: () => void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onSpotifyIframeApiReady?: (IFrameAPI: any) => void;
   }
 }
