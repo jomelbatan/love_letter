@@ -91,4 +91,12 @@ export default defineSchema({
     ),
     initialText: v.optional(v.string()),
   }).index("by_psid", ["psid"]),
+
+  follows: defineTable({
+    followerId: v.id("authors"),
+    followingId: v.id("authors"),
+  })
+    .index("by_follower", ["followerId"])
+    .index("by_following", ["followingId"])
+    .index("by_follower_following", ["followerId", "followingId"]),
 });

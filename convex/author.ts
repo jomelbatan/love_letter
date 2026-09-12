@@ -19,11 +19,11 @@ export const getAuthors = query({
   },
 });
 export const getAuthorByName = query({
-  args: { name: v.string() },
+  args: { username: v.string() },
   handler: async (ctx, args) => {
     const author = await ctx.db
       .query("authors")
-      .withIndex("by_name", (q) => q.eq("name", args.name))
+      .withIndex("by_name", (q) => q.eq("name", args.username))
       .unique();
     if (!author) return;
 

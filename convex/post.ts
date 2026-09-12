@@ -57,39 +57,18 @@ export const createPost = mutation({
 
 export const getUserTimeline = query({
   args: {
-    name: v.string(),
+    authorId: v.id("authors"),
     paginationOpts: paginationOptsValidator,
   },
 
   handler: async (ctx, args) => {
-    const author = await ctx.db
-      .query("authors")
-      .withIndex("by_name", (q) => q.eq("name", args.name))
-      .unique();
-
-    if (!author) {
-      return {
-        author: null,
-        posts: {
-          page: [],
-          isDone: true,
-          continueCursor: "",
-        },
-      };
-    }
-
-    const posts = await ctx.db
+    return await ctx.db
       .query("posts")
       .withIndex("by_author_published", (q) =>
-        q.eq("authorId", author._id).eq("published", true),
+        q.eq("authorId", args.authorId).eq("published", true),
       )
       .order("desc")
       .paginate(args.paginationOpts);
-
-    return {
-      author,
-      posts,
-    };
   },
 });
 
