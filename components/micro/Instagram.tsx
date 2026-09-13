@@ -1,20 +1,8 @@
 "use client";
 
 import { PostProps } from "@/types/props";
-import { useEffect } from "react";
 
-export function InstagramEmbed({ post }: PostProps) {
-  useEffect(() => {
-    if (!post.embedUrl) return;
-
-    // Let React finish rendering the blockquote before Instagram scans it.
-    const timer = setTimeout(() => {
-      window.instgrm?.Embeds.process();
-    }, 0);
-
-    return () => clearTimeout(timer);
-  }, [post.embedUrl]);
-
+export function Instagram({ post }: PostProps) {
   if (!post.embedUrl) {
     return (
       <div className="p-8 text-center text-zinc-400 text-sm">
@@ -24,10 +12,23 @@ export function InstagramEmbed({ post }: PostProps) {
   }
 
   return (
-    <blockquote
-      className="instagram-media bg-white rounded-sm m-px w-full"
-      data-instgrm-permalink={`${post.embedUrl}?utm_source=ig_embed&utm_campaign=loading`}
-      data-instgrm-version="14"
-    />
+    <>
+      <blockquote
+        className="instagram-media"
+        data-instgrm-permalink={post.embedUrl}
+        data-instgrm-version="14"
+        style={{
+          background: "#fff",
+          border: 0,
+          borderRadius: 3,
+          boxShadow: "0 0 1px 0 rgba(0,0,0,0.5), 0 1px 10px 0 rgba(0,0,0,0.15)",
+          margin: 1,
+          maxWidth: 540,
+          minWidth: 326,
+          padding: 0,
+          width: "99.375%",
+        }}
+      />
+    </>
   );
 }

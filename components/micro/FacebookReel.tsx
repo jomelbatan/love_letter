@@ -23,12 +23,12 @@ export function FacebookReel({ post }: VideoPostProps) {
     if (window.FB) {
       process();
     } else {
-      const id = setInterval(() => {
+      const id = setTimeout(() => {
         if (window.FB) {
           clearInterval(id);
           process();
         }
-      }, 100);
+      }, 3000);
       return () => clearInterval(id);
     }
   }, [post.embedUrl]);

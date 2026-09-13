@@ -2,7 +2,7 @@ export {};
 
 declare global {
   interface Window {
-    FB?: {
+    FB: {
       XFBML: {
         parse: (element?: HTMLElement | null) => void;
       };
@@ -10,7 +10,7 @@ declare global {
     fbAsyncInit?: () => void;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSpotifyIframeApiReady?: (IFrameAPI: any) => void;
-    instgrm?: {
+    instgrm: {
       Embeds: { process: (element?: HTMLElement | null) => void };
     };
   }

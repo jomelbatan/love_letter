@@ -21,9 +21,8 @@ export default function Friends() {
         </p>
       </div>
       {/* Loading */}
-      {friendsLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {[1, 2, 3, 4].map((item) => (
+      {friendsLoading
+        ? [1, 2, 3, 4].map((item) => (
             <div
               key={item}
               className=" flex items-center gap-3 border border-chalk-terracotta/20 rounded-md px-3 py-3 sm:px-4 animate-pulse "
@@ -34,12 +33,10 @@ export default function Friends() {
                 <div className="h-4 w-16 rounded bg-chalk-cream" />
               </div>
             </div>
-          ))}
-        </div>
-      ) : (
-        friends.map((f) => (
-          <div
-            className="
+          ))
+        : friends.map((f) => (
+            <div
+              className="
     w-full md:w-1/2
     flex flex-row items-center justify-between
     gap-3
@@ -47,39 +44,38 @@ export default function Friends() {
     rounded-md
     px-3 py-3 sm:px-4
   "
-            key={f._id}
-          >
-            {/* User info */}
-            <div className="flex min-w-0 items-center gap-3 sm:gap-4">
-              {/* Avatar */}
-              <div className="avatar relative shrink-0 size-16 sm:size-20 lg:size-28 bg-chalk-cream rounded-xl overflow-hidden">
-                <Image
-                  src={f.avatarUrl}
-                  alt={`${f.name}'s avatar`}
-                  fill
-                  className="object-cover rounded-xl"
-                />
-              </div>
+              key={f._id}
+            >
+              {/* User info */}
+              <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+                {/* Avatar */}
+                <div className="avatar relative shrink-0 size-16 sm:size-20 lg:size-28 bg-chalk-cream rounded-xl overflow-hidden">
+                  <Image
+                    src={f.avatarUrl}
+                    alt={`${f.name}'s avatar`}
+                    fill
+                    className="object-cover rounded-xl"
+                  />
+                </div>
 
-              {/* Details */}
-              <div className="flex min-w-0 flex-col items-start">
-                <Link href={`/${f.name}`} className="max-w-full">
-                  <p className="truncate text-lg sm:text-xl lg:text-4xl font-yuyu">
-                    {f.name}
-                  </p>
-                </Link>
+                {/* Details */}
+                <div className="flex min-w-0 flex-col items-start">
+                  <Link href={`/${f.name}`} className="max-w-full">
+                    <p className="truncate text-lg sm:text-xl lg:text-4xl font-yuyu">
+                      {f.name}
+                    </p>
+                  </Link>
 
-                <div className="flex gap-1 font-kalam text-sm sm:text-base">
-                  <p>1 friend</p>
+                  <div className="flex gap-1 font-kalam text-sm sm:text-base">
+                    <p>1 friend</p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Actions */}
-            <MoreHorizontal className="shrink-0 text-primary-orange" />
-          </div>
-        ))
-      )}
+              {/* Actions */}
+              <MoreHorizontal className="shrink-0 text-primary-orange" />
+            </div>
+          ))}
     </section>
   );
 }

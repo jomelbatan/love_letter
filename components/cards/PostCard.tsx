@@ -8,7 +8,7 @@ import Tiktok from "../micro/Tiktok";
 import Youtube from "../micro/Youtube";
 import Spotify from "../micro/Spotify";
 import { CopyButton } from "../button/CopyButton";
-import { InstagramEmbed } from "../micro/Instagram";
+import { Instagram } from "../micro/Instagram";
 
 export default function PostCard({
   post,
@@ -19,7 +19,7 @@ export default function PostCard({
 }) {
   if (!post) return;
   return (
-    <article className="relative bg-pure-chalk rounded-xl p-4 border border-soft-dust space-y-3 flex h-fit flex-col items-center justify-center">
+    <article className="relative bg-pure-chalk rounded-xl p-4 border border-soft-dust space-y-3 flex h-fit flex-col items-center">
       <div className="flex w-full items-start justify-between">
         <div className="flex items-center gap-3">
           <div className="avatar size-14 bg-chalk-cream rounded-full border border-chalk-terracotta">
@@ -56,7 +56,7 @@ export default function PostCard({
         <FacebookReel post={post} />
       )}
       {post.embedUrl && post.embedType === "INSTAGRAM" && (
-        <InstagramEmbed post={post} />
+        <Instagram post={post} />
       )}
       {post.embedUrl && post.embedType === "TIKTOK" && <Tiktok post={post} />}
       {post.embedUrl && post.embedType === "YOUTUBE" && <Youtube post={post} />}
