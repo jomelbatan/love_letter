@@ -1,18 +1,36 @@
 "use client";
 
 import { PostProps } from "@/types/props";
+import { useEffect, useRef } from "react";
 
 export function Instagram({ post }: PostProps) {
-  if (!post.embedUrl) {
-    return (
-      <div className="p-8 text-center text-zinc-400 text-sm">
-        Instagram embed link is missing or unavailable.
-      </div>
-    );
-  }
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const process = () => {
+      if (window.instgrm && containerRef.current) {
+        window.instgrm.Embeds.process(containerRef.current);
+      }
+    };
+
+    if (window.instgrm) {
+      process();
+    } else {
+      const id = setTimeout(() => {
+        if (window.instgrm) {
+          clearInterval(id);
+          process();
+        }
+      }, 3000);
+      return () => clearInterval(id);
+    }
+  }, [post.embedUrl]);
 
   return (
-    <>
+    <div
+      ref={containerRef}
+      className="relative mx-auto aspect-9/16 w-full overflow-hidden"
+    >
       <blockquote
         className="instagram-media"
         data-instgrm-permalink={post.embedUrl}
@@ -29,6 +47,6 @@ export function Instagram({ post }: PostProps) {
           width: "99.375%",
         }}
       />
-    </>
+    </div>
   );
 }
