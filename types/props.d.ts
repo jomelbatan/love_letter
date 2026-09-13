@@ -6,3 +6,6 @@ export interface AuthorProps {
 export interface AuthorIdProps {
   authorId: Id<"authors">;
 }
+export interface PostProps {
+  post: Doc<"posts">;
+}

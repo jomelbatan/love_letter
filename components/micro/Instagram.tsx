@@ -1,15 +1,19 @@
 "use client";
-import Script from "next/script";
-import { useEffect, useRef } from "react";
 
-export type InstagramEmbedProps = {
-  post: {
-    embedUrl?: string;
-  };
-};
+import { PostProps } from "@/types/props";
+import { useEffect } from "react";
 
-export function InstagramEmbed({ post }: InstagramEmbedProps) {
-  const blockquoteRef = useRef<HTMLDivElement>(null);
+export function InstagramEmbed({ post }: PostProps) {
+  useEffect(() => {
+    if (!post.embedUrl) return;
+
+    // Let React finish rendering the blockquote before Instagram scans it.
+    const timer = setTimeout(() => {
+      window.instgrm?.Embeds.process();
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [post.embedUrl]);
 
   if (!post.embedUrl) {
     return (
@@ -20,9 +24,10 @@ export function InstagramEmbed({ post }: InstagramEmbedProps) {
   }
 
   return (
-    <div
-      ref={blockquoteRef}
-      className="relative mx-auto h-full w-full overflow-hidden"
-    ></div>
+    <blockquote
+      className="instagram-media bg-white rounded-sm m-px w-full"
+      data-instgrm-permalink={`${post.embedUrl}?utm_source=ig_embed&utm_campaign=loading`}
+      data-instgrm-version="14"
+    />
   );
 }
