@@ -5,17 +5,54 @@ import PhotoCard from "../cards/PhotoCard";
 import PersonalDetailsCard from "../cards/PersonalDetailsCard";
 import Locked from "../cards/Locked";
 import PostCard from "../cards/PostCard";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import FriendsCard from "../cards/FriendsCard";
 import { AuthorProps } from "@/types/props";
 import { usePost } from "@/providers/PostProvider";
 
+// Matches the 1rem (16px) gap used for top-4 / bottom-4
+const STICKY_OFFSET = 16;
+
 export default function ProfileLayout({ author }: AuthorProps) {
   const { posts, loadMore, status, isLoading } = usePost();
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  const asideContentRef = useRef<HTMLDivElement>(null);
+  const [stickyTop, setStickyTop] = useState(STICKY_OFFSET);
 
   const isLoadingMore = status === "LoadingMore";
   const hasMore = status === "CanLoadMore";
+
+  useEffect(() => {
+    const element = asideContentRef.current;
+    if (!element) return;
+
+    const evaluate = () => {
+      const contentHeight = element.scrollHeight;
+      const viewportHeight = window.innerHeight;
+      const available = viewportHeight - STICKY_OFFSET * 2;
+
+      if (contentHeight <= available) {
+        // Fits comfortably: stick to the top like normal.
+        setStickyTop(STICKY_OFFSET);
+      } else {
+        // Taller than the viewport: this goes negative, which pins
+        // the sidebar's bottom to the viewport bottom and lets its
+        // top scroll into view as the page scrolls further.
+        setStickyTop(viewportHeight - contentHeight - STICKY_OFFSET);
+      }
+    };
+
+    evaluate();
+
+    const resizeObserver = new ResizeObserver(evaluate);
+    resizeObserver.observe(element);
+    window.addEventListener("resize", evaluate);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", evaluate);
+    };
+  }, [author]);
 
   useEffect(() => {
     const element = loadMoreRef.current;
@@ -43,9 +80,13 @@ export default function ProfileLayout({ author }: AuthorProps) {
   return (
     <div className="w-full">
       <div className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] items-start gap-4">
-          <aside className="lg:self-start">
-            <div className="lg:sticky lg:top-4 flex flex-col gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-4">
+          <aside>
+            <div
+              ref={asideContentRef}
+              className="lg:sticky flex flex-col gap-4"
+              style={{ top: stickyTop }}
+            >
               {(author.personalDetails ||
                 author.work ||
                 author.education ||
