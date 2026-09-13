@@ -27,6 +27,40 @@ export async function getCanonicalTikTokUrl(url: string): Promise<string> {
     return url;
   }
 }
+export async function getCanonicalInstagramUrl(url: string): Promise<string> {
+  try {
+    const response = await fetch(url, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+        Accept: "text/html",
+      },
+      redirect: "follow",
+    });
+
+    if (!response.ok) return url;
+
+    const html = await response.text();
+
+    // 1. Look for <link rel="canonical" href="..." />
+    const canonicalMatch = html.match(
+      /<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']/i,
+    );
+    if (canonicalMatch?.[1]) return canonicalMatch[1];
+
+    // 2. Fallback to Open Graph URL: <meta property="og:url" content="..." />
+    const ogMatch = html.match(
+      /<meta[^>]+property=["']og:url["'][^>]+content=["']([^"']+)["']/i,
+    );
+    if (ogMatch?.[1]) return ogMatch[1];
+
+    // 3. Fallback to final redirected URL
+    return response.url;
+  } catch (error) {
+    console.error("Failed to fetch canonical URL:", error);
+    return url;
+  }
+}
 
 export function extractAttachmentUrl(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -57,6 +91,7 @@ export function getTikTokVideoId(url: string): string | null {
   const match = url.match(/\/video\/(\d+)/);
   return match?.[1] ?? null;
 }
+
 type YouTubeVideo = {
   id: string;
   isShort: boolean;

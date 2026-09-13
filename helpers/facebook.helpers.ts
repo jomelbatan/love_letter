@@ -5,6 +5,7 @@ import { api } from "@/convex/_generated/api";
 import {
   extractAttachmentUrl,
   getCanonicalFacebookUrl,
+  getCanonicalInstagramUrl,
   getCanonicalTikTokUrl,
 } from "./link.helper";
 import { Id } from "@/convex/_generated/dataModel";
@@ -84,6 +85,7 @@ export async function parseContent(text: string) {
     }
   } else if (lower.includes("instagram.com") || lower.includes("fb.watch")) {
     embedType = "INSTAGRAM";
+    embedUrl = await getCanonicalInstagramUrl(embedUrl);
   } else {
     embedType = "LINK";
   }
@@ -185,6 +187,7 @@ async function dispatchMessage(
   attachment: any,
 ): Promise<void> {
   const deleteCommandMatch = messageText.match(/^\/delete:(.+)$/i);
+  const urlMatch = messageText.match(/https?:\/\/\S+/i);
 
   const [pendingDelete, pendingPost] = messageText
     ? await Promise.all([
@@ -211,6 +214,14 @@ async function dispatchMessage(
 
   // 3. Pending caption response
   if (pendingPost) {
+    // If what came in is actually a new URL rather than a caption,
+    // post the pending one first, then let the new URL start its own flow.
+    if (urlMatch) {
+      await resolvePendingCaption(senderId, author, pendingPost, "");
+      await handleTextMessageOrUrl(senderId, author, messageText);
+      return;
+    }
+
     await resolvePendingCaption(senderId, author, pendingPost, messageText);
     return;
   }
@@ -230,7 +241,6 @@ async function dispatchMessage(
     await handleTextMessageOrUrl(senderId, author, messageText);
   }
 }
-
 async function resolvePendingDelete(
   senderId: string,
   author: AuthorRecord,
