@@ -23,7 +23,7 @@ export default function RootLayout({
         <div id="fb-root"></div>
         <ConvexClientProvider>{children}</ConvexClientProvider>
 
-        <Script src="//www.instagram.com/embed.js" async />
+        <Script async src="https://www.instagram.com/embed.js" />
         <Script
           async
           defer

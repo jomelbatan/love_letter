@@ -1,5 +1,5 @@
 "use client";
-
+import Script from "next/script";
 import { useEffect, useRef } from "react";
 
 export type InstagramEmbedProps = {
@@ -9,27 +9,7 @@ export type InstagramEmbedProps = {
 };
 
 export function InstagramEmbed({ post }: InstagramEmbedProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const process = () => {
-      if (window.instgrm && containerRef.current) {
-        window.instgrm.Embeds.process(containerRef.current);
-      }
-    };
-
-    if (window.instgrm) {
-      process();
-    } else {
-      const id = setInterval(() => {
-        if (window.instgrm) {
-          clearInterval(id);
-          process();
-        }
-      }, 100);
-      return () => clearInterval(id);
-    }
-  }, [post.embedUrl]);
+  const blockquoteRef = useRef<HTMLDivElement>(null);
 
   if (!post.embedUrl) {
     return (
@@ -41,15 +21,8 @@ export function InstagramEmbed({ post }: InstagramEmbedProps) {
 
   return (
     <div
-      ref={containerRef}
-      className="relative w-full min-h-[500px] flex justify-center"
-    >
-      <blockquote
-        className="instagram-media"
-        data-instgrm-captioned
-        data-instgrm-permalink="https://www.instagram.com/reels/DdCEyeDA8uD/?utm_source=ig_embed&amp;utm_campaign=loading"
-        data-instgrm-version="14"
-      ></blockquote>
-    </div>
+      ref={blockquoteRef}
+      className="relative mx-auto h-full w-full overflow-hidden"
+    ></div>
   );
 }

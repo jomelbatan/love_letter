@@ -3,8 +3,6 @@ import ProfileTabs from "@/components/major/ProfileTabs";
 import { api } from "@/convex/_generated/api";
 import { fetchQuery } from "convex/nextjs";
 import { notFound } from "next/navigation";
-import Script from "next/script";
-import React from "react";
 
 type Props = {
   params: Promise<{ username: string }>;
