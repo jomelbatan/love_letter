@@ -20,16 +20,7 @@ export default function RootLayout({
       className={`${kalam.variable} ${kalamBold.variable} ${yuyu.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <div id="fb-root"></div>
         <ConvexClientProvider>{children}</ConvexClientProvider>
-
-        <Script async src="https://www.instagram.com/embed.js" />
-        <Script
-          async
-          defer
-          crossOrigin="anonymous"
-          src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v26.0"
-        ></Script>
       </body>
     </html>
   );
