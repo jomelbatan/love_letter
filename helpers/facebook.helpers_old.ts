@@ -10,8 +10,7 @@ import {
 import { Id } from "@/convex/_generated/dataModel";
 
 type PostType = "TEXT" | "LETTER" | "IMAGE" | "EMBED";
-type EmbedType =
-  "SPOTIFY" | "TIKTOK" | "FACEBOOK" | "YOUTUBE" | "INSTAGRAM" | "LINK";
+type EmbedType = "SPOTIFY" | "TIKTOK" | "FACEBOOK" | "YOUTUBE" | "LINK";
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
@@ -82,8 +81,6 @@ export async function parseContent(text: string) {
     if (lower.includes("facebook.com/share/")) {
       embedUrl = await getCanonicalFacebookUrl(embedUrl);
     }
-  } else if (lower.includes("instagram.com") || lower.includes("fb.watch")) {
-    embedType = "INSTAGRAM";
   } else {
     embedType = "LINK";
   }
@@ -125,17 +122,6 @@ interface AuthorRecord {
   };
 }
 
-interface PendingDelete {
-  postId: Id<"posts">;
-}
-
-interface PendingPost {
-  type: PostType;
-  embedUrl?: string;
-  embedType?: EmbedType;
-  initialText?: string;
-}
-
 // ============================================================================
 // Main Entrypoint
 // ============================================================================
@@ -161,82 +147,58 @@ export async function handleIncomingMessage(event: any) {
   }
 
   try {
-    await dispatchMessage(senderId, author, messageText, attachment);
+    // 1. Pending delete confirmation check (takes precedence over new commands)
+    const handledPendingDelete = await handlePendingDelete(
+      senderId,
+      author,
+      messageText,
+    );
+    if (handledPendingDelete) return;
+
+    // 2. New delete command: /delete:{postId}
+    const handledDeleteCommand = await handleDeleteCommand(
+      senderId,
+      messageText,
+    );
+    if (handledDeleteCommand) return;
+
+    // 3. Pending caption response
+    const handledPendingCaption = await handlePendingCaption(
+      senderId,
+      author,
+      messageText,
+    );
+    if (handledPendingCaption) return;
+
+    // 4. Inbound Reel or Facebook attachment
+    const handledAttachment = await handleAttachment(
+      senderId,
+      author,
+      attachment,
+    );
+    if (handledAttachment) return;
+
+    // 5. Inbound text containing URLs or raw text fallback
+    if (messageText) {
+      await handleTextMessageOrUrl(senderId, author, messageText);
+    }
   } catch (err) {
     console.error("[Timeline Bot] Failed to process message:", err);
     await sendReply(senderId, "Oops, could not save this entry. Check logs!");
   }
 }
 
-/**
- * Figures out which single handler applies to this message and runs only
- * that one. Previously, `getPendingDelete` and `getPendingPost` were queried
- * one after another on *every* incoming message (including attachment-only
- * messages with no text, where neither result could ever be used). Now:
- *  - both are skipped entirely when there's no messageText to react to
- *  - when they are needed, they're fetched together in one round trip
- *    instead of sequentially
- *  - the `/delete:{id}` command is a plain regex check, so it costs nothing
- */
-async function dispatchMessage(
+async function handlePendingDelete(
   senderId: string,
   author: AuthorRecord,
   messageText: string,
-  attachment: any,
-): Promise<void> {
-  const deleteCommandMatch = messageText.match(/^\/delete:(.+)$/i);
+): Promise<boolean> {
+  const pendingDelete = await convex.query(api.post.getPendingDelete, {
+    psid: senderId,
+  });
 
-  const [pendingDelete, pendingPost] = messageText
-    ? await Promise.all([
-        convex.query(api.post.getPendingDelete, {
-          psid: senderId,
-        }) as Promise<PendingDelete | null>,
-        convex.query(api.post.getPendingPost, {
-          psid: senderId,
-        }) as Promise<PendingPost | null>,
-      ])
-    : [null, null];
+  if (!pendingDelete || !messageText) return false;
 
-  // 1. Pending delete confirmation takes precedence over everything else.
-  if (pendingDelete) {
-    await resolvePendingDelete(senderId, author, pendingDelete, messageText);
-    return;
-  }
-
-  // 2. New delete command: /delete:{postId}
-  if (deleteCommandMatch) {
-    await startDeleteFlow(senderId, deleteCommandMatch[1].trim());
-    return;
-  }
-
-  // 3. Pending caption response
-  if (pendingPost) {
-    await resolvePendingCaption(senderId, author, pendingPost, messageText);
-    return;
-  }
-
-  // 4. Inbound Reel or Facebook attachment
-  if (
-    attachment &&
-    (attachment.type === "reel" || attachment.type === "post") &&
-    attachment.url
-  ) {
-    await handleAttachment(senderId, author, attachment);
-    return;
-  }
-
-  // 5. Inbound text containing URLs or raw text fallback
-  if (messageText) {
-    await handleTextMessageOrUrl(senderId, author, messageText);
-  }
-}
-
-async function resolvePendingDelete(
-  senderId: string,
-  author: AuthorRecord,
-  pendingDelete: PendingDelete,
-  messageText: string,
-): Promise<void> {
   const isConfirmed = /^(yes|y|confirm|sure)$/i.test(messageText);
   const isCancelled = /^(no|none|cancel|nope|stop)$/i.test(messageText);
 
@@ -247,13 +209,13 @@ async function resolvePendingDelete(
     });
     await convex.mutation(api.post.clearPendingDelete, { psid: senderId });
     await sendReply(senderId, "Post deleted successfully 🗑️");
-    return;
+    return true;
   }
 
   if (isCancelled) {
     await convex.mutation(api.post.clearPendingDelete, { psid: senderId });
     await sendReply(senderId, "Deletion cancelled.");
-    return;
+    return true;
   }
 
   // User typed something else while a delete confirmation is waiting
@@ -261,40 +223,52 @@ async function resolvePendingDelete(
     senderId,
     "Are you sure you wanted to delete? Reply YES to confirm or NO to cancel.",
   );
+  return true;
 }
 
 /**
- * Initiates the confirmation flow for a `/delete:{postId}` command.
+ * Parses `/delete:{postId}` and initiates the confirmation flow.
+ * Returns true if a delete command was matched.
  */
-async function startDeleteFlow(
+async function handleDeleteCommand(
   senderId: string,
-  postId: string,
-): Promise<void> {
+  messageText: string,
+): Promise<boolean> {
+  const match = messageText.match(/^\/delete:(.+)$/i);
+  if (!match) return false;
+
+  const postId = match[1].trim() as Id<"posts">;
   if (!postId) {
     await sendReply(senderId, "Please provide a post ID: `/delete:{postId}`");
-    return;
+    return true;
   }
 
   await convex.mutation(api.post.savePendingDelete, {
     psid: senderId,
-    postId: postId as Id<"posts">,
+    postId,
   });
 
   await sendReply(
     senderId,
     `Are you sure you wanted to delete post ${postId}? Reply YES to confirm or NO to cancel.`,
   );
+  return true;
 }
 
 /**
  * Handles completing a post when the user submits or skips a pending caption.
  */
-async function resolvePendingCaption(
+async function handlePendingCaption(
   senderId: string,
   author: AuthorRecord,
-  pendingPost: PendingPost,
   messageText: string,
-): Promise<void> {
+): Promise<boolean> {
+  const pendingPost = await convex.query(api.post.getPendingPost, {
+    psid: senderId,
+  });
+
+  if (!pendingPost || !messageText) return false;
+
   const isNoCaption = /^(no|none|skip|nope)$/i.test(messageText);
   const finalCaption = isNoCaption
     ? pendingPost.initialText || ""
@@ -315,17 +289,25 @@ async function resolvePendingCaption(
     senderId,
     `${author.author?.name || "Author"} shared it to their timeline 💌`,
   );
+  return true;
 }
 
 /**
  * Saves a pending post for incoming video/reel attachments.
- * (Type/url validity is already checked by the dispatcher before this runs.)
  */
 async function handleAttachment(
   senderId: string,
   author: AuthorRecord,
   attachment: any,
-): Promise<void> {
+): Promise<boolean> {
+  if (
+    !attachment ||
+    (attachment.type !== "reel" && attachment.type !== "post") ||
+    !attachment.url
+  ) {
+    return false;
+  }
+
   await convex.mutation(api.post.savePendingPost, {
     psid: senderId,
     authorId: author._id,
@@ -339,6 +321,7 @@ async function handleAttachment(
     senderId,
     "Do you want to add some caption? Write it down or type no",
   );
+  return true;
 }
 
 /**

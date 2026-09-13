@@ -39,10 +39,10 @@ export default function Hero({ author }: AuthorProps) {
                 </>
               )}
             </div>
-            <p className="font-kalam">{author.bio}</p>
+            <p className="font-kalam px-4">{author.bio}</p>
           </div>
         </div>
-        <div className="flex flex-row gap-2 h-fit">
+        <div className="flex flex-row gap-2 h-fit mt-4 lg:mt-0">
           {author.name === "Melo" ? (
             <button className="px-4 py-2 border-2 border-chalk-terracotta flex flex-row gap-2 rounded-xl cursor-pointer">
               <UserRoundCheck className="text-chalk-terracotta size-5" />

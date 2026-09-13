@@ -32,12 +32,8 @@ export default function ProfileLayout({ author }: AuthorProps) {
       const available = viewportHeight - STICKY_OFFSET * 2;
 
       if (contentHeight <= available) {
-        // Fits comfortably: stick to the top like normal.
         setStickyTop(STICKY_OFFSET);
       } else {
-        // Taller than the viewport: this goes negative, which pins
-        // the sidebar's bottom to the viewport bottom and lets its
-        // top scroll into view as the page scrolls further.
         setStickyTop(viewportHeight - contentHeight - STICKY_OFFSET);
       }
     };

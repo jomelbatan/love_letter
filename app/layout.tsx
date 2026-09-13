@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { kalam, kalamBold, yuyu } from "@/libs/fonts";
 import ConvexClientProvider from "@/providers/ConvexProvides";
-import ProfileProvider from "@/providers/ProfileProvider";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "Scratched",
@@ -21,8 +21,15 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <div id="fb-root"></div>
-
         <ConvexClientProvider>{children}</ConvexClientProvider>
+
+        <Script src="//www.instagram.com/embed.js" async />
+        <Script
+          async
+          defer
+          crossOrigin="anonymous"
+          src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v26.0"
+        ></Script>
       </body>
     </html>
   );

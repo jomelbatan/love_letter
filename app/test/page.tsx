@@ -1,17 +1,31 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import MusicWave from "@/components/loaders/MusicWave";
-import SpotifyPlayer from "@/components/micro/Try";
-import { useRef, useState, useEffect } from "react";
+
+import { FacebookReel } from "@/components/micro/FacebookReel";
 
 export default function App() {
-  return (
-    <iframe
-      src="https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2Fphoto.php%3Ffbid%3D122408621270224689%26set%3Da.122102886176224689%26type%3D3&show_text=false&width=500"
-      width="500"
-      height="753"
+  const link1 = '"https://www.instagram.com/reel/Da0sqLUqz0Y"';
 
-      allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-    ></iframe>
+  const link = "https://www.instagram.com/reels/Da0sqLUqz0Y";
+  return (
+    <>
+      <blockquote
+        className="instagram-media"
+        data-instgrm-captioned
+        data-instgrm-permalink="https://www.instagram.com/reels/DdCEyeDA8uD/?utm_source=ig_embed&amp;utm_campaign=loading"
+        data-instgrm-version="14"
+      ></blockquote>
+      <div
+        className={`fb-post rounded-xl`}
+        data-href={`https://www.facebook.com/photo/?fbid=1652055149624360&set=a.263133995183156`}
+        data-width="auto"
+        data-show-text={false}
+      />
+      <div
+        className={`fb-video rounded-xl`}
+        data-href={`https://www.facebook.com/reel/2883680888662434`}
+        data-width="auto"
+      />
+    </>
   );
 }

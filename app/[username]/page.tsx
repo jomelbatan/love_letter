@@ -3,6 +3,7 @@ import ProfileTabs from "@/components/major/ProfileTabs";
 import { api } from "@/convex/_generated/api";
 import { fetchQuery } from "convex/nextjs";
 import { notFound } from "next/navigation";
+import Script from "next/script";
 import React from "react";
 
 type Props = {
@@ -18,9 +19,11 @@ export default async function UserTimeline({ params }: Props) {
     notFound();
   }
   return (
-    <div className=" px-0 lg:px-64">
-      <Hero author={author} />
-      <ProfileTabs author={author} />
-    </div>
+    <>
+      <div className=" px-0 lg:px-64">
+        <Hero author={author} />
+        <ProfileTabs author={author} />
+      </div>
+    </>
   );
 }

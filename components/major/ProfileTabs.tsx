@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import ProfileLayout from "./ProfileLayout";
 import About from "../sections/about";
 import Friends from "../sections/friends";
@@ -26,6 +26,7 @@ const TABS: Tab[] = [
 ];
 
 export default function ProfileTabs({ author }: AuthorProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [currentTab, setCurrentTab] = useState<TabId>("all");
 
   const {
@@ -38,7 +39,6 @@ export default function ProfileTabs({ author }: AuthorProps) {
     author ? { authorId: author._id } : "skip",
     { initialNumItems: 10 },
   );
-
   const { results: friends, isLoading: friendsLoading } = usePaginatedQuery(
     api.follows.getFriends,
     { authorId: author._id },
@@ -47,11 +47,12 @@ export default function ProfileTabs({ author }: AuthorProps) {
   const friendsCount = useQuery(api.follows.getFriendCount, {
     authorId: author._id,
   });
-  const handleTabClick = (tabId: TabId) => {
+  function handleTabClick(tabId: TabId) {
     setCurrentTab(tabId);
-  };
+  }
+
   return (
-    <>
+    <div ref={containerRef}>
       <div className="w-full">
         <nav
           role="tablist"
@@ -121,6 +122,6 @@ export default function ProfileTabs({ author }: AuthorProps) {
           </div>
         </PostProvider>
       </ProfileProvider>
-    </>
+    </div>
   );
 }

@@ -3,9 +3,6 @@
 import Link from "next/link";
 import { User } from "lucide-react";
 import Image from "next/image";
-import { usePaginatedQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
 import { formatWordS } from "@/libs/date";
 import { FriendsCardSkeleton } from "../loaders/Skeleton";
 import { useProfile } from "@/providers/ProfileProvider";
@@ -49,7 +46,7 @@ export default function FriendsCard() {
             <Link href={`/${friend.name}`} key={friend._id}>
               <div className="group flex flex-col cursor-pointer select-none">
                 {/* Image Thumbnail */}
-                <div className="avatar relative shrink-0 size-16 sm:size-20 lg:size-28 bg-chalk-cream rounded-xl overflow-hidden">
+                <div className="avatar relative shrink-0 size-28  rounded-full lg:rounded-xl bg-chalk-cream overflow-hidden">
                   {friend.avatarUrl ? (
                     <Image
                       src={friend.avatarUrl}
@@ -66,7 +63,7 @@ export default function FriendsCard() {
                 </div>
 
                 {/* Friend Name */}
-                <span className="text-lg font-semibold text-deep-charcoal font-kalam-bold leading-tight line-clamp-2 group-hover:underline">
+                <span className="text-center lg:text-start text-lg font-semibold text-deep-charcoal font-kalam-bold leading-tight line-clamp-2 group-hover:underline">
                   {friend.name}
                 </span>
 
