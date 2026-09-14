@@ -3,11 +3,14 @@ import Cover from "../../public/images/cover.png";
 import Image from "next/image";
 import { formatWordS } from "@/libs/date";
 import { AuthorProps } from "@/types/props";
+import ChatBubble from "../cards/ChatBubble";
+import { Doc } from "@/convex/_generated/dataModel";
 
-export default function Hero({ author }: AuthorProps) {
+type HeroProps = AuthorProps & { note: Doc<"notes"> | null | undefined };
+export default function Hero({ author, note }: HeroProps) {
   return (
     <div className="w-full">
-      <div className="relative w-full aspect-851/315 overflow-hidden lg:rounded-2xl">
+      <div className="relative w-full aspect-video md:aspect-851/315 overflow-hidden lg:rounded-2xl">
         <Image
           src={Cover}
           alt="cover-photo"
@@ -16,30 +19,33 @@ export default function Hero({ author }: AuthorProps) {
           priority
         />
       </div>
-      <div className="flex flex-col lg:flex-row items-center justify-between -mt-16 lg:mt-0 lg:pt-8">
-        <div className="flex flex-col lg:flex-row gap-4 items-center">
-          <div className="avatar size-36 lg:size-44 bg-chalk-cream rounded-full">
-            <div className="ring-accent-pink ring-offset-chalk-terracotta w-36 lg:w-44 rounded-full ring-2 ring-offset-2">
-              <Image
-                src={author.avatarUrl}
-                alt={`${author.name}'s avatar`}
-                fill
-                className="object-cover rounded-full"
-              />
+      <div className="flex flex-col lg:flex-row items-center justify-between lg:px-8 -mt-16 lg:mt-0 lg:pt-8">
+        <div className="relative shrink-0">
+          {note && <ChatBubble note={note} />}
+          <div className="flex flex-col lg:flex-row gap-4 items-center">
+            <div className="avatar size-36 md:size-44 bg-chalk-cream rounded-full overflow-hidden">
+              <div className="border-2 p-0.5 border-chalk-terracotta w-36 md:w-44 rounded-full ring-2 ring-offset-2 relative">
+                <Image
+                  src={author.avatarUrl}
+                  alt={`${author.name}'s avatar`}
+                  fill
+                  className="object-cover rounded-full"
+                />
+              </div>
             </div>
-          </div>
-          <div className="flex flex-col  items-center lg:items-start">
-            <p className="text-4xl font-kalam-bold">{author.name}</p>
-            <div className="flex flex-row gap-1 font-kalam-bold">
-              <p>1 friend</p>
-              {author.postCount > 1 && (
-                <>
-                  ·
-                  <p>{`${author.postCount} ${formatWordS("post", author.postCount)}`}</p>
-                </>
-              )}
+            <div className="flex flex-col  items-center lg:items-start">
+              <p className="text-4xl font-kalam-bold">{author.name}</p>
+              <div className="flex flex-row gap-1 font-kalam-bold">
+                <p>1 friend</p>
+                {author.postCount > 1 && (
+                  <>
+                    ·
+                    <p>{`${author.postCount} ${formatWordS("post", author.postCount)}`}</p>
+                  </>
+                )}
+              </div>
+              <p className="font-kalam px-4 lg:px-0">{author.bio}</p>
             </div>
-            <p className="font-kalam px-4">{author.bio}</p>
           </div>
         </div>
         <div className="flex flex-row gap-2 h-fit mt-4 lg:mt-0">
@@ -62,6 +68,7 @@ export default function Hero({ author }: AuthorProps) {
           </button>
         </div>
       </div>
+
       <div className="border border-soft-dust w-full mt-4"></div>
     </div>
   );

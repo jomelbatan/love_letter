@@ -17,11 +17,15 @@ export default async function UserTimeline({ params }: Props) {
   if (!author) {
     notFound();
   }
+  const note = await fetchQuery(api.notes.getNote, {
+    authorId: author._id,
+  });
+
   return (
     <>
       <div id="fb-root"></div>
       <div className=" px-0 lg:px-64">
-        <Hero author={author} />
+        <Hero author={author} note={note} />
         <ProfileTabs author={author} />
       </div>
       <Script async src="https://www.instagram.com/embed.js" />

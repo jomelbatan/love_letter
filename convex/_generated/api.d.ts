@@ -11,6 +11,7 @@
 import type * as author from "../author.js";
 import type * as authorAccount from "../authorAccount.js";
 import type * as follows from "../follows.js";
+import type * as notes from "../notes.js";
 import type * as photos from "../photos.js";
 import type * as post from "../post.js";
 
@@ -24,6 +25,7 @@ declare const fullApi: ApiFromModules<{
   author: typeof author;
   authorAccount: typeof authorAccount;
   follows: typeof follows;
+  notes: typeof notes;
   photos: typeof photos;
   post: typeof post;
 }>;

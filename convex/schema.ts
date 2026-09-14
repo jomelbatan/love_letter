@@ -111,4 +111,12 @@ export default defineSchema({
     .index("by_follower", ["followerId"])
     .index("by_following", ["followingId"])
     .index("by_follower_following", ["followerId", "followingId"]),
+
+  notes: defineTable({
+    authorId: v.id("authors"),
+    content: v.string(),
+    expiresAt: v.optional(v.number()),
+  })
+    .index("by_author", ["authorId"])
+    .index("by_expires_at", ["expiresAt"]),
 });

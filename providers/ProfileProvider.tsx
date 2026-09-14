@@ -11,17 +11,13 @@ type ProfileContextValue = {
 
 const ProfileContext = createContext<ProfileContextValue | null>(null);
 
+type ProfileProviderType = ProfileContextValue & { children: React.ReactNode };
 export default function ProfileProvider({
   children,
   friends,
   friendsLoading,
   friendsCount,
-}: {
-  children: React.ReactNode;
-  friends: Doc<"authors">[];
-  friendsLoading: boolean;
-  friendsCount: number;
-}) {
+}: ProfileProviderType) {
   return (
     <ProfileContext.Provider value={{ friends, friendsLoading, friendsCount }}>
       {children}

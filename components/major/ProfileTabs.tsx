@@ -47,6 +47,7 @@ export default function ProfileTabs({ author }: AuthorProps) {
   const friendsCount = useQuery(api.follows.getFriendCount, {
     authorId: author._id,
   });
+
   function handleTabClick(tabId: TabId) {
     setCurrentTab(tabId);
   }
