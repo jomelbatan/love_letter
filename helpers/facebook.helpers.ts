@@ -20,10 +20,15 @@ import { classifyIntent } from "./intent.helper";
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
-const pageAccessToken =
+const FBAccessToken =
   process.env.NODE_ENV === "development"
     ? process.env.DEV_META_PAGE_ACCESS_TOKEN
     : process.env.META_PAGE_ACCESS_TOKEN;
+
+const IGAccessToken =
+  process.env.NODE_ENV === "development"
+    ? process.env.DEV_IG_PAGE_ACCESS_TOKEN
+    : process.env.IG_PAGE_ACCESS_TOKEN;
 
 export function verifySignature(
   payload: string,
@@ -102,25 +107,45 @@ export async function parseContent(text: string) {
     hasUrl: true,
   };
 }
-export async function sendReply(recipientId: string, messageText: string) {
-  await fetch(
-    `https://graph.facebook.com/v20.0/me/messages?access_token=${pageAccessToken}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        recipient: { id: recipientId },
-        message: { text: messageText },
-      }),
-    },
-  );
+export async function sendReply(
+  payload: string,
+  recipientId: string,
+  messageText: string,
+) {
+  return payload === "page"
+    ? await fetch(
+        `https://graph.facebook.com/v20.0/me/messages?access_token=${FBAccessToken}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            recipient: { id: recipientId },
+            message: { text: messageText },
+          }),
+        },
+      )
+    : await fetch("https://graph.instagram.com/v25.0/me/messages", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${IGAccessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: {
+            text: messageText,
+          },
+          recipient: {
+            id: recipientId,
+          },
+        }),
+      });
 }
 
 // ============================================================================
 // Main Entrypoint
 // ============================================================================
 
-export async function handleIncomingMessage(event: any) {
+export async function handleIncomingMessage(event: any, payload: string) {
   const senderId: string = event.sender?.id;
   const messageText: string = (event.message?.text || "").trim();
   const rawAttachments = event.message?.attachments;
@@ -136,15 +161,23 @@ export async function handleIncomingMessage(event: any) {
 
   if (!author) {
     console.log(`[Timeline Bot] Unrecognized sender PSID: ${senderId}`);
-    await sendReply(senderId, `Connected! Your sender PSID is: ${senderId}`);
+    await sendReply(
+      payload,
+      senderId,
+      `Connected! Your sender PSID is: ${senderId}`,
+    );
     return;
   }
 
   try {
-    await dispatchMessage(senderId, author, messageText, attachment);
+    await dispatchMessage(payload, senderId, author, messageText, attachment);
   } catch (err) {
     console.error("[Timeline Bot] Failed to process message:", err);
-    await sendReply(senderId, "Oops, could not save this entry. Check logs!");
+    await sendReply(
+      payload,
+      senderId,
+      "Oops, could not save this entry. Check logs!",
+    );
   }
 }
 
@@ -160,6 +193,7 @@ export async function handleIncomingMessage(event: any) {
  */
 
 async function dispatchMessage(
+  payload: string,
   senderId: string,
   author: AuthorRecord,
   messageText: string,
@@ -187,44 +221,59 @@ async function dispatchMessage(
   switch (intent.kind) {
     case "confirmDelete":
       return resolvePendingDelete(
+        payload,
         senderId,
         author,
         intent.pending,
         intent.text,
       );
     case "startDelete":
-      return startDeleteFlow(senderId, intent.postId);
+      return startDeleteFlow(payload, senderId, intent.postId);
     case "createNote":
       return void convex.mutation(api.notes.createNote, {
         authorId: author.authorId,
         content: intent.content,
       });
     case "interruptCaptionWithNewPost":
-      await resolvePendingCaption(senderId, author, intent.pending, "");
-      return handleTextMessageOrUrl(senderId, author, intent.url);
+      await resolvePendingCaption(
+        payload,
+        senderId,
+        author,
+        intent.pending,
+        "",
+      );
+      return handleTextMessageOrUrl(payload, senderId, author, intent.url);
     case "interruptCaptionWithImage":
-      await resolvePendingCaption(senderId, author, intent.pending, "");
-      return handleAttachment(senderId, author, {
+      await resolvePendingCaption(
+        payload,
+        senderId,
+        author,
+        intent.pending,
+        "",
+      );
+      return handleAttachment(payload, senderId, author, {
         type: "image",
         url: intent.imageUrl,
       });
     case "provideCaption":
       return resolvePendingCaption(
+        payload,
         senderId,
         author,
         intent.pending,
         intent.text,
       );
     case "handleAttachment":
-      return handleAttachment(senderId, author, intent.attachment);
+      return handleAttachment(payload, senderId, author, intent.attachment);
     case "handleTextOrUrl":
-      return handleTextMessageOrUrl(senderId, author, intent.text);
+      return handleTextMessageOrUrl(payload, senderId, author, intent.text);
     case "noop":
       return;
   }
 }
 
 async function resolvePendingDelete(
+  payload: string,
   senderId: string,
   author: AuthorRecord,
   pendingDelete: PendingDelete,
@@ -239,29 +288,35 @@ async function resolvePendingDelete(
       authorId: author.authorId,
     });
     await convex.mutation(api.post.clearPendingDelete, { psid: senderId });
-    await sendReply(senderId, "Post deleted successfully 🗑️");
+    await sendReply(payload, senderId, "Post deleted successfully 🗑️");
     return;
   }
 
   if (isCancelled) {
     await convex.mutation(api.post.clearPendingDelete, { psid: senderId });
-    await sendReply(senderId, "Deletion cancelled.");
+    await sendReply(payload, senderId, "Deletion cancelled.");
     return;
   }
 
   // User typed something else while a delete confirmation is waiting
   await sendReply(
+    payload,
     senderId,
     "Are you sure you wanted to delete? Reply YES to confirm or NO to cancel.",
   );
 }
 
 async function startDeleteFlow(
+  payload: string,
   senderId: string,
   postId: string,
 ): Promise<void> {
   if (!postId) {
-    await sendReply(senderId, "Please provide a post ID: `/delete:{postId}`");
+    await sendReply(
+      payload,
+      senderId,
+      "Please provide a post ID: `/delete:{postId}`",
+    );
     return;
   }
 
@@ -271,12 +326,14 @@ async function startDeleteFlow(
   });
 
   await sendReply(
+    payload,
     senderId,
     `Are you sure you wanted to delete post ${postId}? Reply YES to confirm or NO to cancel.`,
   );
 }
 
 async function resolvePendingCaption(
+  payload: string,
   senderId: string,
   author: AuthorRecord,
   pendingPost: PendingPost,
@@ -299,12 +356,14 @@ async function resolvePendingCaption(
 
   await convex.mutation(api.post.clearPendingPost, { psid: senderId });
   await sendReply(
+    payload,
     senderId,
     `${author.author?.name || "Author"} shared it to their timeline 💌`,
   );
 }
 
 async function handleAttachment(
+  payload: string,
   senderId: string,
   author: AuthorRecord,
   attachment: any,
@@ -319,12 +378,14 @@ async function handleAttachment(
   });
 
   await sendReply(
+    payload,
     senderId,
     "Do you want to add some caption? Write it down or type no",
   );
 }
 
 async function handleTextMessageOrUrl(
+  payload: string,
   senderId: string,
   author: AuthorRecord,
   messageText: string,
@@ -341,6 +402,7 @@ async function handleTextMessageOrUrl(
     });
 
     await sendReply(
+      payload,
       senderId,
       "Do you want to add some caption? Write it down or type no",
     );
@@ -357,6 +419,7 @@ async function handleTextMessageOrUrl(
   });
 
   await sendReply(
+    payload,
     senderId,
     `${author.author?.name || "Author"} shared it to their timeline 💌`,
   );
