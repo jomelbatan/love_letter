@@ -47,6 +47,7 @@ export function verifySignature(
 }
 
 export async function parseContent(text: string) {
+  console.log("TExt: ", text);
   const urlRegex = /https?:\/\/[^\s]+/i;
   const match = text.match(urlRegex);
 
@@ -217,7 +218,6 @@ async function dispatchMessage(
     pendingDelete,
     pendingPost,
   );
-
   switch (intent.kind) {
     case "confirmDelete":
       return resolvePendingDelete(
@@ -234,27 +234,56 @@ async function dispatchMessage(
         authorId: author.authorId,
         content: intent.content,
       });
-    case "interruptCaptionWithNewPost":
-      await resolvePendingCaption(
-        payload,
-        senderId,
-        author,
-        intent.pending,
-        "",
-      );
-      return handleTextMessageOrUrl(payload, senderId, author, intent.url);
-    case "interruptCaptionWithImage":
-      await resolvePendingCaption(
-        payload,
-        senderId,
-        author,
-        intent.pending,
-        "",
-      );
-      return handleAttachment(payload, senderId, author, {
-        type: "image",
-        url: intent.imageUrl,
+    case "interruptCaptionWithAttachment":
+      await convex.mutation(api.post.resolveThenSavePendingPost, {
+        psid: senderId,
+        accountId: author._id,
+        authorId: author.authorId,
+        type: "EMBED",
+        embedUrl: intent.attachment.url,
+        embedType: payload === "page" ? "FACEBOOK" : "INSTAGRAM",
+        initialText: "",
       });
+      await sendReply(
+        payload,
+        senderId,
+        "Do you want to add some caption? Write it down or type no",
+      );
+      return;
+    case "interruptCaptionWithNewPost": {
+      const { type, embedType, embedUrl } = await parseContent(intent.url);
+      await convex.mutation(api.post.resolveThenSavePendingPost, {
+        psid: senderId,
+        accountId: author._id,
+        authorId: author.authorId,
+        type,
+        embedUrl: embedUrl ?? undefined,
+        embedType,
+        initialText: "",
+      });
+      await sendReply(
+        payload,
+        senderId,
+        "Do you want to add some caption? Write it down or type no",
+      );
+      return;
+    }
+    case "interruptCaptionWithImage":
+      await convex.mutation(api.post.resolveThenSavePendingPost, {
+        psid: senderId,
+        accountId: author._id,
+        authorId: author.authorId,
+        type: "EMBED",
+        embedUrl: intent.imageUrl,
+        embedType: payload === "page" ? "FACEBOOK" : "INSTAGRAM",
+        initialText: "",
+      });
+      await sendReply(
+        payload,
+        senderId,
+        "Do you want to add some caption? Write it down or type no",
+      );
+      return;
     case "provideCaption":
       return resolvePendingCaption(
         payload,
@@ -368,9 +397,10 @@ async function handleAttachment(
   author: AuthorRecord,
   attachment: any,
 ): Promise<void> {
-  await convex.mutation(api.post.savePendingPost, {
+  await convex.mutation(api.post.resolveThenSavePendingPost, {
     psid: senderId,
-    authorId: author._id,
+    accountId: author._id,
+    authorId: author.authorId,
     type: "EMBED",
     embedUrl: attachment.url,
     embedType: payload === "page" ? "FACEBOOK" : "INSTAGRAM",
@@ -393,12 +423,14 @@ async function handleTextMessageOrUrl(
   const { type, embedType, embedUrl, hasUrl } = await parseContent(messageText);
 
   if (hasUrl) {
-    await convex.mutation(api.post.savePendingPost, {
+    await convex.mutation(api.post.resolveThenSavePendingPost, {
       psid: senderId,
-      authorId: author._id,
+      accountId: author._id,
+      authorId: author.authorId,
       type,
       embedUrl: embedUrl ?? undefined,
       embedType,
+      initialText: "",
     });
 
     await sendReply(
@@ -409,7 +441,7 @@ async function handleTextMessageOrUrl(
     return;
   }
 
-  // Pure text message (letter)
+  // Pure text message (letter) — unchanged
   await convex.mutation(api.post.createPost, {
     authorId: author.authorId,
     type: "LETTER",

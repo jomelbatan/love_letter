@@ -201,3 +201,61 @@ export const deletePost = mutation({
     }
   },
 });
+// post.ts
+export const resolveThenSavePendingPost = mutation({
+  args: {
+    psid: v.string(),
+    accountId: v.id("authorAccounts"), // author._id
+    authorId: v.id("authors"), // author.authorId
+    type: v.union(
+      v.literal("TEXT"),
+      v.literal("LETTER"),
+      v.literal("IMAGE"),
+      v.literal("EMBED"),
+    ),
+    embedUrl: v.optional(v.string()),
+    embedType: v.optional(
+      v.union(
+        v.literal("SPOTIFY"),
+        v.literal("TIKTOK"),
+        v.literal("FACEBOOK"),
+        v.literal("YOUTUBE"),
+        v.literal("INSTAGRAM"),
+        v.literal("LINK"),
+      ),
+    ),
+    initialText: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query("pendingPosts")
+      .withIndex("by_psid", (q) => q.eq("psid", args.psid))
+      .first();
+
+    if (existing) {
+      const author = await ctx.db.get(args.authorId);
+      await ctx.db.insert("posts", {
+        authorId: args.authorId,
+        type: existing.type,
+        text: existing.initialText || "",
+        embedUrl: existing.embedUrl,
+        embedType: existing.embedType,
+        eventDate: Date.now(),
+        published: true,
+      });
+      await ctx.db.patch(args.authorId, {
+        postCount: (author?.postCount ?? 0) + 1,
+      });
+      await ctx.db.delete(existing._id);
+    }
+
+    await ctx.db.insert("pendingPosts", {
+      psid: args.psid,
+      authorId: args.accountId,
+      type: args.type,
+      embedUrl: args.embedUrl,
+      embedType: args.embedType,
+      initialText: args.initialText,
+    });
+  },
+});

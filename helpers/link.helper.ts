@@ -77,7 +77,7 @@ export function extractAttachmentUrl(
   if (type === "reel" || rawUrl.includes("/reel/")) {
     const cleanUrl = rawUrl.split("?")[0];
     return {
-      type: "reel",
+      type: type,
       url: cleanUrl,
     };
   }

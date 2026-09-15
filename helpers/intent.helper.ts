@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { Intent, PendingDelete, PendingPost } from "@/types/interception";
 
+// intent.helper.ts
 export function classifyIntent(
   messageText: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   attachment: any,
   pendingDelete: PendingDelete | null,
   pendingPost: PendingPost | null,
@@ -10,7 +12,13 @@ export function classifyIntent(
   const deleteCommandMatch = messageText?.match(/^\/delete:(.+)$/i);
   const noteCommandMatch = messageText?.match(/^\/note:(.+)$/i);
   const urlMatch = messageText?.match(/https?:\/\/\S+/i);
-  const isImage = attachment?.type === "image";
+  const isPostableAttachment =
+    attachment &&
+    (attachment.type === "reel" ||
+      attachment.type === "post" ||
+      attachment.type === "image" ||
+      attachment.type === "ig_reel") &&
+    attachment.url;
 
   if (pendingDelete)
     return { kind: "confirmDelete", pending: pendingDelete, text: messageText };
@@ -20,11 +28,11 @@ export function classifyIntent(
     return { kind: "createNote", content: noteCommandMatch[1].trim() };
 
   if (pendingPost) {
-    if (isImage)
+    if (isPostableAttachment)
       return {
-        kind: "interruptCaptionWithImage",
+        kind: "interruptCaptionWithAttachment",
         pending: pendingPost,
-        imageUrl: attachment.url,
+        attachment,
       };
     if (urlMatch)
       return {
@@ -35,16 +43,7 @@ export function classifyIntent(
     return { kind: "provideCaption", pending: pendingPost, text: messageText };
   }
 
-  if (
-    attachment &&
-    (attachment.type === "reel" ||
-      attachment.type === "post" ||
-      attachment.type === "image") &&
-    attachment.url
-  ) {
-    return { kind: "handleAttachment", attachment };
-  }
-
+  if (isPostableAttachment) return { kind: "handleAttachment", attachment };
   if (messageText) return { kind: "handleTextOrUrl", text: messageText };
   return { kind: "noop" };
 }

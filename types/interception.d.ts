@@ -36,6 +36,11 @@ export type Intent =
       pending: PendingPost;
       imageUrl: string;
     }
+  | {
+      kind: "interruptCaptionWithAttachment";
+      pending: PendingPost;
+      attachment: any;
+    }
   | { kind: "handleAttachment"; attachment: any }
   | { kind: "handleTextOrUrl"; text: string }
   | { kind: "noop" };
