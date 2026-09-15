@@ -11,7 +11,7 @@ const appSecret =
   process.env.NODE_ENV === "development"
     ? process.env.DEV_META_APP_SECRET
     : process.env.META_APP_SECRET;
-
+const ig_page = process.env.IG_PAGE_ACCESS_TOKEN;
 // 1. GET: Webhook Verification Challenge
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -28,6 +28,7 @@ export async function GET(req: NextRequest) {
 
 // 2. POST: Message Ingestion
 export async function POST(req: NextRequest) {
+  console.log("Hits");
   const rawBody = await req.text();
   const signature = req.headers.get("x-hub-signature-256");
 
