@@ -9,6 +9,7 @@ import Youtube from "../micro/Youtube";
 import Spotify from "../micro/Spotify";
 import { CopyButton } from "../button/CopyButton";
 import { Instagram } from "../micro/Instagram";
+import YouTubeMusic from "../micro/YoutubeMusic";
 
 export default function PostCard({
   post,
@@ -59,7 +60,15 @@ export default function PostCard({
         <Instagram post={post} />
       )}
       {post.embedUrl && post.embedType === "TIKTOK" && <Tiktok post={post} />}
-      {post.embedUrl && post.embedType === "YOUTUBE" && <Youtube post={post} />}
+      {post.embedUrl && post.embedType === "YOUTUBE" && (
+        <>
+          {post.embedUrl.includes("music") ? (
+            <YouTubeMusic post={post} />
+          ) : (
+            <Youtube post={post} />
+          )}
+        </>
+      )}
       {post.embedUrl && post.embedType === "SPOTIFY" && <Spotify post={post} />}
     </article>
   );

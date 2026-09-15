@@ -28,37 +28,38 @@ export async function getCanonicalTikTokUrl(url: string): Promise<string> {
   }
 }
 export async function getCanonicalInstagramUrl(url: string): Promise<string> {
+  const POST_PATH = /\/(p|reel|reels|tv)\/[A-Za-z0-9_-]+/;
+
+  const fallback = () => {
+    // Best-effort: extract the post path + username-less canonical from the input itself
+    const match = url.match(POST_PATH);
+    if (match) return `https://www.instagram.com${match[0]}/`;
+    return url.split("?")[0];
+  };
+
   try {
-    const response = await fetch(url, {
+    const res = await fetch(url, {
+      method: "GET",
+      redirect: "follow",
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
-        Accept: "text/html",
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9",
       },
-      redirect: "follow",
     });
 
-    if (!response.ok) return url;
+    const finalUrl = res.url || url;
 
-    const html = await response.text();
+    // If we're still on a post/reel page, that's the canonical.
+    // Otherwise Instagram bounced us to /accounts/login or a challenge page.
+    if (POST_PATH.test(new URL(finalUrl).pathname)) {
+      const match = finalUrl.match(POST_PATH);
+      return match ? `https://www.instagram.com${match[0]}/` : fallback();
+    }
 
-    // 1. Look for <link rel="canonical" href="..." />
-    const canonicalMatch = html.match(
-      /<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']/i,
-    );
-    if (canonicalMatch?.[1]) return canonicalMatch[1];
-
-    // 2. Fallback to Open Graph URL: <meta property="og:url" content="..." />
-    const ogMatch = html.match(
-      /<meta[^>]+property=["']og:url["'][^>]+content=["']([^"']+)["']/i,
-    );
-    if (ogMatch?.[1]) return ogMatch[1];
-
-    // 3. Fallback to final redirected URL
-    return response.url;
-  } catch (error) {
-    console.error("Failed to fetch canonical URL:", error);
-    return url;
+    return fallback();
+  } catch {
+    return fallback();
   }
 }
 
@@ -193,6 +194,47 @@ export function getSpotifyInfo(url: string): SpotifyInfo | null {
       id,
       type: type as SpotifyType,
     };
+  } catch {
+    return null;
+  }
+}
+export async function getYouTubeMetadata(url: string) {
+  const response = await fetch(
+    `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`,
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch YouTube metadata");
+  }
+
+  const data = await response.json();
+
+  return {
+    title: data.title,
+    author_name: data.author_name.replace(/\s*-\s*Topic$/, ""),
+    thumbnail_url: data.thumbnail_url.replace("hqdefault", "maxresdefault"),
+  };
+}
+export function getYouTubeVideoId(url: string): string | null {
+  try {
+    const parsedUrl = new URL(url);
+
+    // youtube.com/watch?v=...
+    if (parsedUrl.searchParams.has("v")) {
+      return parsedUrl.searchParams.get("v");
+    }
+
+    // youtu.be/...
+    if (parsedUrl.hostname === "youtu.be") {
+      return parsedUrl.pathname.slice(1);
+    }
+
+    // youtube.com/shorts/...
+    if (parsedUrl.pathname.startsWith("/shorts/")) {
+      return parsedUrl.pathname.split("/")[2];
+    }
+
+    return null;
   } catch {
     return null;
   }

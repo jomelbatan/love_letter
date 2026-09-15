@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from "react";
 import FriendsCard from "../cards/FriendsCard";
 import { AuthorProps } from "@/types/props";
 import { usePost } from "@/providers/PostProvider";
+import PostCardSkeleton from "../loaders/Skeleton";
 
 // Matches the 1rem (16px) gap used for top-4 / bottom-4
 const STICKY_OFFSET = 16;
@@ -106,15 +107,18 @@ export default function ProfileLayout({ author }: AuthorProps) {
               </button>
             </div>
 
-            {author.name !== "Melo" && (
+            {!isLoading && posts.length === 0 && (
               <h1 className="text-3xl font-kalam-bold text-deep-charcoal text-center">
                 No Post Available
               </h1>
             )}
-
-            {posts.map((post) => (
-              <PostCard key={post._id} post={post} author={author} />
-            ))}
+            {isLoading
+              ? Array.from({ length: 3 }).map((_, index) => (
+                  <PostCardSkeleton key={index} />
+                ))
+              : posts.map((post) => (
+                  <PostCard key={post._id} post={post} author={author} />
+                ))}
 
             {/* Infinite scroll trigger */}
             <div

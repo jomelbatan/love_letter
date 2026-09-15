@@ -87,7 +87,7 @@ export async function parseContent(text: string) {
     if (lower.includes("facebook.com/share/")) {
       embedUrl = await getCanonicalFacebookUrl(embedUrl);
     }
-  } else if (lower.includes("instagram.com") || lower.includes("fb.watch")) {
+  } else if (lower.includes("instagram.com")) {
     embedType = "INSTAGRAM";
     embedUrl = await getCanonicalInstagramUrl(embedUrl);
   } else {

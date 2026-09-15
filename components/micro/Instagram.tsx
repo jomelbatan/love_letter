@@ -29,7 +29,7 @@ export function Instagram({ post }: PostProps) {
   return (
     <div
       ref={containerRef}
-      className="relative mx-auto aspect-9/16 w-full overflow-hidden"
+      className="relative mx-auto h-full w-full overflow-hidden"
     >
       <blockquote
         className="instagram-media"
