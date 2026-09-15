@@ -373,7 +373,7 @@ async function handleAttachment(
     authorId: author._id,
     type: "EMBED",
     embedUrl: attachment.url,
-    embedType: "FACEBOOK",
+    embedType: payload === "page" ? "FACEBOOK" : "INSTAGRAM",
     initialText: "",
   });
 
