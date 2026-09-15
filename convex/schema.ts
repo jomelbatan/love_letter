@@ -93,6 +93,7 @@ export default defineSchema({
       ),
     ),
     initialText: v.optional(v.string()),
+    platform: v.union(v.literal("page"), v.literal("instagram")),
   }).index("by_psid", ["psid"]),
 
   photos: defineTable({

@@ -146,7 +146,10 @@ export async function sendReply(
 // Main Entrypoint
 // ============================================================================
 
-export async function handleIncomingMessage(event: any, payload: string) {
+export async function handleIncomingMessage(
+  event: any,
+  payload: "page" | "instagram",
+) {
   const senderId: string = event.sender?.id;
   const messageText: string = (event.message?.text || "").trim();
   const rawAttachments = event.message?.attachments;
@@ -194,7 +197,7 @@ export async function handleIncomingMessage(event: any, payload: string) {
  */
 
 async function dispatchMessage(
-  payload: string,
+  payload: "page" | "instagram",
   senderId: string,
   author: AuthorRecord,
   messageText: string,
@@ -243,6 +246,7 @@ async function dispatchMessage(
         embedUrl: intent.attachment.url,
         embedType: payload === "page" ? "FACEBOOK" : "INSTAGRAM",
         initialText: "",
+        platform: payload,
       });
       await sendReply(
         payload,
@@ -250,34 +254,27 @@ async function dispatchMessage(
         "Do you want to add some caption? Write it down or type no",
       );
       return;
-    case "interruptCaptionWithNewPost": {
-      const { type, embedType, embedUrl } = await parseContent(intent.url);
-      await convex.mutation(api.post.resolveThenSavePendingPost, {
-        psid: senderId,
-        accountId: author._id,
-        authorId: author.authorId,
-        type,
-        embedUrl: embedUrl ?? undefined,
-        embedType,
-        initialText: "",
-      });
-      await sendReply(
-        payload,
-        senderId,
-        "Do you want to add some caption? Write it down or type no",
-      );
-      return;
-    }
-    case "interruptCaptionWithImage":
-      await convex.mutation(api.post.resolveThenSavePendingPost, {
-        psid: senderId,
-        accountId: author._id,
-        authorId: author.authorId,
-        type: "EMBED",
-        embedUrl: intent.imageUrl,
-        embedType: payload === "page" ? "FACEBOOK" : "INSTAGRAM",
-        initialText: "",
-      });
+    case "interruptCaptionWithNewPost":
+      {
+        const { type, embedType, embedUrl } = await parseContent(intent.url);
+        await convex.mutation(api.post.resolveThenSavePendingPost, {
+          psid: senderId,
+          accountId: author._id,
+          authorId: author.authorId,
+          type,
+          embedUrl: embedUrl ?? undefined,
+          embedType,
+          initialText: "",
+          platform: payload,
+        });
+        await sendReply(
+          payload,
+          senderId,
+          "Do you want to add some caption? Write it down or type no",
+        );
+        return;
+      }
+
       await sendReply(
         payload,
         senderId,
@@ -392,7 +389,7 @@ async function resolvePendingCaption(
 }
 
 async function handleAttachment(
-  payload: string,
+  payload: "page" | "instagram",
   senderId: string,
   author: AuthorRecord,
   attachment: any,
@@ -405,6 +402,7 @@ async function handleAttachment(
     embedUrl: attachment.url,
     embedType: payload === "page" ? "FACEBOOK" : "INSTAGRAM",
     initialText: "",
+    platform: payload,
   });
 
   await sendReply(
@@ -415,7 +413,7 @@ async function handleAttachment(
 }
 
 async function handleTextMessageOrUrl(
-  payload: string,
+  payload: "page" | "instagram",
   senderId: string,
   author: AuthorRecord,
   messageText: string,
@@ -431,6 +429,7 @@ async function handleTextMessageOrUrl(
       embedUrl: embedUrl ?? undefined,
       embedType,
       initialText: "",
+      platform: payload,
     });
 
     await sendReply(

@@ -1,6 +1,13 @@
 import { paginationOptsValidator } from "convex/server";
-import { query, mutation } from "./_generated/server";
+import {
+  query,
+  mutation,
+  internalMutation,
+  internalAction,
+} from "./_generated/server";
 import { v } from "convex/values";
+import { internal } from "./_generated/api";
+import { sendTaskMessage } from "next/dist/build/swc/generated-native";
 
 export const getTimeline = query({
   args: {},
@@ -89,42 +96,6 @@ export const getPendingPost = query({
   },
 });
 
-export const savePendingPost = mutation({
-  args: {
-    psid: v.string(),
-    authorId: v.id("authorAccounts"),
-    type: v.union(
-      v.literal("TEXT"),
-      v.literal("LETTER"),
-      v.literal("IMAGE"),
-      v.literal("EMBED"),
-    ),
-    embedUrl: v.optional(v.string()),
-    embedType: v.optional(
-      v.union(
-        v.literal("SPOTIFY"),
-        v.literal("TIKTOK"),
-        v.literal("FACEBOOK"),
-        v.literal("YOUTUBE"),
-        v.literal("INSTAGRAM"),
-        v.literal("LINK"),
-      ),
-    ),
-    initialText: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
-    // Remove existing pending entry if any
-    const existing = await ctx.db
-      .query("pendingPosts")
-      .withIndex("by_psid", (q) => q.eq("psid", args.psid))
-      .first();
-    if (existing) {
-      await ctx.db.delete(existing._id);
-    }
-    await ctx.db.insert("pendingPosts", args);
-  },
-});
-
 export const clearPendingPost = mutation({
   args: { psid: v.string() },
   handler: async (ctx, args) => {
@@ -191,8 +162,8 @@ export const clearPendingDelete = mutation({
 export const deletePost = mutation({
   args: { postId: v.id("posts"), authorId: v.id("authors") },
   handler: async (ctx, args) => {
-    const author = await ctx.db.get("authors", args.authorId);
-    const existing = await ctx.db.get("posts", args.postId);
+    const author = await ctx.db.get(args.authorId);
+    const existing = await ctx.db.get(args.postId);
     if (existing && author) {
       await ctx.db.delete(existing._id);
       ctx.db.patch(author._id, {
@@ -201,12 +172,14 @@ export const deletePost = mutation({
     }
   },
 });
-// post.ts
+
+const PENDING_POST_TIMEOUT_MS = 5 * 60 * 1000; // tune this — e.g. 5 min
+
 export const resolveThenSavePendingPost = mutation({
   args: {
     psid: v.string(),
-    accountId: v.id("authorAccounts"), // author._id
-    authorId: v.id("authors"), // author.authorId
+    accountId: v.id("authorAccounts"),
+    authorId: v.id("authors"),
     type: v.union(
       v.literal("TEXT"),
       v.literal("LETTER"),
@@ -225,6 +198,7 @@ export const resolveThenSavePendingPost = mutation({
       ),
     ),
     initialText: v.optional(v.string()),
+    platform: v.union(v.literal("page"), v.literal("instagram")), // new
   },
   handler: async (ctx, args) => {
     const existing = await ctx.db
@@ -249,13 +223,63 @@ export const resolveThenSavePendingPost = mutation({
       await ctx.db.delete(existing._id);
     }
 
-    await ctx.db.insert("pendingPosts", {
+    const pendingPostId = await ctx.db.insert("pendingPosts", {
       psid: args.psid,
       authorId: args.accountId,
       type: args.type,
       embedUrl: args.embedUrl,
       embedType: args.embedType,
       initialText: args.initialText,
+      platform: args.platform,
     });
+
+    // Auto-finalize if nobody responds within the threshold
+    await ctx.scheduler.runAfter(
+      PENDING_POST_TIMEOUT_MS,
+      internal.post.finalizeStalePendingPost,
+      { pendingPostId },
+    );
+  },
+});
+
+export const finalizeStalePendingPostRecord = internalMutation({
+  args: { pendingPostId: v.id("pendingPosts") },
+  handler: async (ctx, args) => {
+    const pending = await ctx.db.get(args.pendingPostId);
+    if (!pending) return null; // already resolved/replaced — nothing to do
+
+    const account = await ctx.db.get(pending.authorId);
+    if (!account) return null;
+    const author = await ctx.db.get(account.authorId);
+    if (!author) return null;
+
+    await ctx.db.insert("posts", {
+      authorId: account.authorId,
+      type: pending.type,
+      text: pending.initialText || "",
+      embedUrl: pending.embedUrl,
+      embedType: pending.embedType,
+      eventDate: Date.now(),
+      published: true,
+    });
+    await ctx.db.patch(account.authorId, { postCount: author.postCount + 1 });
+    await ctx.db.delete(pending._id);
+
+    return {
+      psid: pending.psid,
+      platform: pending.platform,
+      authorName: author.name,
+    };
+  },
+});
+
+export const finalizeStalePendingPost = internalAction({
+  args: { pendingPostId: v.id("pendingPosts") },
+  handler: async (ctx, args) => {
+    const result = await ctx.runMutation(
+      internal.post.finalizeStalePendingPostRecord,
+      { pendingPostId: args.pendingPostId },
+    );
+    if (!result) return;
   },
 });
