@@ -158,6 +158,7 @@ export async function handleIncomingMessage(event: any) {
  *    instead of sequentially
  *  - the `/delete:{id}` command is a plain regex check, so it costs nothing
  */
+
 async function dispatchMessage(
   senderId: string,
   author: AuthorRecord,

@@ -1,11 +1,12 @@
-import { Play } from "lucide-react";
+import { Loader2, Play } from "lucide-react";
 import React from "react";
 
 interface IndicatorProps {
   isPlaying: boolean;
+  isLoading?: boolean;
 }
 
-export default function Indicator({ isPlaying }: IndicatorProps) {
+export default function Indicator({ isPlaying, isLoading }: IndicatorProps) {
   const bars = [
     { delay: "0ms", duration: "800ms" },
     { delay: "200ms", duration: "1000ms" },
@@ -15,9 +16,11 @@ export default function Indicator({ isPlaying }: IndicatorProps) {
   return (
     <div
       className={`flex items-end gap-1 h-6 absolute right-4 bottom-2`}
-      aria-label="Audio wave"
+      aria-label={isLoading ? "Loading track" : "Audio wave"}
     >
-      {isPlaying ? (
+      {isLoading ? (
+        <Loader2 className="size-5 animate-spin" aria-hidden="true" />
+      ) : isPlaying ? (
         bars.map((bar, i) => (
           <span
             key={i}

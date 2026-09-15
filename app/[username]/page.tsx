@@ -35,6 +35,7 @@ export default async function UserTimeline({ params }: Props) {
         crossOrigin="anonymous"
         src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v26.0"
       ></Script>
+      <Script src="https://www.youtube.com/iframe_api" async />
     </>
   );
 }
