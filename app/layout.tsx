@@ -3,6 +3,8 @@ import "./globals.css";
 import { kalam, kalamBold, yuyu } from "@/libs/fonts";
 import ConvexClientProvider from "@/providers/ConvexProvides";
 import Script from "next/script";
+import AfterwordNavbar from "@/components/major/NavBar";
+import React from "react";
 
 export const metadata: Metadata = {
   title: "Scratched",
@@ -20,7 +22,10 @@ export default function RootLayout({
       className={`${kalam.variable} ${kalamBold.variable} ${yuyu.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <ConvexClientProvider>{children}</ConvexClientProvider>
+        <ConvexClientProvider>
+          <AfterwordNavbar />
+          {children}
+        </ConvexClientProvider>
       </body>
     </html>
   );

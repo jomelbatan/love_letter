@@ -89,7 +89,7 @@ export default function ProfileLayout({ author }: AuthorProps) {
                 author.education ||
                 author.contactInfo) && <PersonalDetailsCard author={author} />}
               {<FriendsCard />}
-              {<PhotoCard authorId={author._id} />}
+              {<PhotoCard />}
             </div>
           </aside>
 

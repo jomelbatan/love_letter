@@ -20,3 +20,11 @@ export const getUserPhotos = query({
     );
   },
 });
+export const get = query({
+  args: {
+    photoId: v.id("_storage"),
+  },
+  handler: async (ctx, { photoId }) => {
+    return ctx.storage.getUrl(photoId);
+  },
+});

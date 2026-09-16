@@ -10,6 +10,8 @@ import { usePaginatedQuery, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import ProfileProvider from "@/providers/ProfileProvider";
 import PostProvider from "@/providers/PostProvider";
+import ProviderLoader from "./ProviderLoader";
+import PhotoView from "./PhotoView";
 
 export type TabId = "all" | "about" | "friends" | "photos";
 
@@ -28,25 +30,6 @@ const TABS: Tab[] = [
 export default function ProfileTabs({ author }: AuthorProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentTab, setCurrentTab] = useState<TabId>("all");
-
-  const {
-    results: posts,
-    status,
-    loadMore,
-    isLoading: postsLoading,
-  } = usePaginatedQuery(
-    api.post.getUserTimeline,
-    author ? { authorId: author._id } : "skip",
-    { initialNumItems: 10 },
-  );
-  const { results: friends, isLoading: friendsLoading } = usePaginatedQuery(
-    api.follows.getFriends,
-    { authorId: author._id },
-    { initialNumItems: 9 },
-  );
-  const friendsCount = useQuery(api.follows.getFriendCount, {
-    authorId: author._id,
-  });
 
   function handleTabClick(tabId: TabId) {
     setCurrentTab(tabId);
@@ -89,40 +72,41 @@ export default function ProfileTabs({ author }: AuthorProps) {
           })}
         </nav>
       </div>
-      <ProfileProvider
-        friends={friends}
-        friendsLoading={friendsLoading}
-        friendsCount={friendsCount ?? 0}
-      >
-        <PostProvider
-          posts={posts}
-          status={status}
-          loadMore={loadMore}
-          isLoading={postsLoading}
-        >
-          <div className=" p-4 sm:p-6">
-            {currentTab === "all" && <ProfileLayout author={author} />}
-            {currentTab === "about" && (
-              <div className="flex flex-col gap-4">
-                <About author={author} />
-                <Friends />
-                <Photos />
-              </div>
-            )}
-            {currentTab === "friends" && (
-              <div className="flex flex-col gap-4">
-                <Friends />
-                <Photos />
-              </div>
-            )}
-            {currentTab === "photos" && (
-              <div className="flex flex-col gap-4">
-                <Photos />
-              </div>
-            )}
+      <ProviderLoader author={author}>
+        <div className=" p-4 sm:p-6">
+          <div className={currentTab === "all" ? "" : "hidden"}>
+            <ProfileLayout author={author} />
           </div>
-        </PostProvider>
-      </ProfileProvider>
+
+          <div
+            className={
+              currentTab === "about" ? "flex flex-col gap-4" : "hidden"
+            }
+          >
+            <About author={author} />
+            <Friends />
+            <Photos />
+          </div>
+
+          <div
+            className={
+              currentTab === "friends" ? "flex flex-col gap-4" : "hidden"
+            }
+          >
+            <Friends />
+            <Photos />
+          </div>
+
+          <div
+            className={
+              currentTab === "photos" ? "flex flex-col gap-4" : "hidden"
+            }
+          >
+            <Photos />
+          </div>
+        </div>
+        <PhotoView />
+      </ProviderLoader>
     </div>
   );
 }

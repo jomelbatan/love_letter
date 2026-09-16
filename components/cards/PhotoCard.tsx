@@ -1,15 +1,12 @@
-import React from "react";
+"use client";
+
+import { usePicture } from "@/providers/PhotoProvider";
 import Image from "next/image";
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { AuthorIdProps } from "@/types/props";
+import Link from "next/link";
 
-export default function PhotoCard({ authorId }: AuthorIdProps) {
-  const photos = useQuery(api.photos.getUserPhotos, {
-    authorId,
-  });
-
-  if (!photos || photos?.length === 0) return;
+export default function PhotoCard() {
+  const { pictures, setSelectedPhoto } = usePicture();
+  if (!pictures || pictures?.length === 0) return;
   return (
     <section className="bg-pure-chalk rounded-xl p-4 shadow-sm border border-soft-dust">
       <div className="flex items-center justify-between mb-3">
@@ -21,13 +18,14 @@ export default function PhotoCard({ authorId }: AuthorIdProps) {
 
       {/* 3x2 Photo Grid */}
       <div className="grid grid-cols-3 gap-1.5 rounded-lg overflow-hidden">
-        {photos.map((src, i) => (
+        {pictures.map((src, i) => (
           <div
             key={i}
+            onClick={() => setSelectedPhoto(src.url!)}
             className="relative aspect-square bg-zinc-800 overflow-hidden group"
           >
             <Image
-              src={`${src}?w=300&h=300&fit=crop&auto=format`}
+              src={`${src.url}`}
               width={300}
               height={300}
               alt={`Photo thumbnail ${i + 1}`}

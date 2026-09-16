@@ -1,4 +1,5 @@
 import Hero from "@/components/major/Hero";
+import AfterwordNavbar from "@/components/major/NavBar";
 import ProfileTabs from "@/components/major/ProfileTabs";
 import { api } from "@/convex/_generated/api";
 import { fetchQuery } from "convex/nextjs";
@@ -24,7 +25,7 @@ export default async function UserTimeline({ params }: Props) {
   return (
     <>
       <div id="fb-root"></div>
-      <div className=" px-0 lg:px-64">
+      <div className="relative px-0 lg:px-64">
         <Hero author={author} note={note} />
         <ProfileTabs author={author} />
       </div>

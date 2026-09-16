@@ -1,18 +1,20 @@
 import { Pointer, UserRoundCheck, UserRoundPlus } from "lucide-react";
-import Cover from "../../public/images/cover.png";
 import Image from "next/image";
 import { formatWordS } from "@/libs/date";
 import { AuthorProps } from "@/types/props";
 import ChatBubble from "../cards/ChatBubble";
 import { Doc } from "@/convex/_generated/dataModel";
+import { coverImages } from "@/data";
 
 type HeroProps = AuthorProps & { note: Doc<"notes"> | null | undefined };
 export default function Hero({ author, note }: HeroProps) {
+  const selectedImage = coverImages[author.name.toLocaleLowerCase()];
+  console.log("DE: ", selectedImage);
   return (
     <div className="w-full">
       <div className="relative w-full aspect-video md:aspect-851/315 overflow-hidden lg:rounded-2xl">
         <Image
-          src={Cover}
+          src={selectedImage}
           alt="cover-photo"
           fill
           className="object-cover"
