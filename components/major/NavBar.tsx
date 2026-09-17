@@ -8,22 +8,6 @@ import {
   SquareText,
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
-
-const links = [
-  { label: "home", href: "/" },
-  { label: "entries", href: "/entries" },
-  { label: "letters", href: "/letters" },
-  { label: "about", href: "/about" },
-];
-
-// tiny hand-drawn-style blob accents cycled behind the active link
-const blobColors = [
-  "var(--color-chalk-butter-yellow)",
-  "var(--color-pastel-sage)",
-  "var(--color-chalk-lavender)",
-  "var(--color-mint-foam)",
-];
 
 export default function AfterwordNavbar() {
   return (

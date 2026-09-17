@@ -7,7 +7,6 @@ import {
 } from "./_generated/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
-import { sendTaskMessage } from "next/dist/build/swc/generated-native";
 
 export const getTimeline = query({
   args: {},
@@ -246,7 +245,7 @@ export const finalizeStalePendingPostRecord = internalMutation({
   args: { pendingPostId: v.id("pendingPosts") },
   handler: async (ctx, args) => {
     const pending = await ctx.db.get(args.pendingPostId);
-    if (!pending) return null; // already resolved/replaced — nothing to do
+    if (!pending) return null;
 
     const account = await ctx.db.get(pending.authorId);
     if (!account) return null;

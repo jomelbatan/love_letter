@@ -157,17 +157,22 @@ export default function YouTubeMusic({ post }: PostProps) {
       </div>
     );
   }
-
+  const titleSize =
+    metadata.title.length > 60
+      ? "text-sm lg:text-xl"
+      : metadata.title.length > 40
+        ? "text-base lg:text-xl"
+        : "text-lg lg:text-xl";
   return (
     <div
       onClick={togglePlay}
-      className="group relative w-full cursor-pointer select-none overflow-hidden
+      className="group relative w-full cursor-pointer select-none
       rounded-2xl bg-peach-milk text-chalk-terracotta"
     >
       {/* Hidden YouTube player */}
       <div
         ref={playerContainerRef}
-        className="pointer-events-none absolute left-[-9999px] top-0 h-px w-px overflow-hidden"
+        className="pointer-events-none absolute left-[-9999px] top-0 h-px w-px"
         aria-hidden="true"
       />
 
@@ -197,7 +202,11 @@ export default function YouTubeMusic({ post }: PostProps) {
 
         {/* Song information */}
         <div className="flex min-w-0 flex-1 flex-col justify-center py-2">
-          <h2 className="truncate text-xl font-kalam-bold">{metadata.title}</h2>
+          <h2
+            className={`line-clamp-4 max-w-full font-kalam-bold ${titleSize}`}
+          >
+            {metadata.title}
+          </h2>
 
           {metadata?.author_name && (
             <p className="truncate text-sm opacity-80">

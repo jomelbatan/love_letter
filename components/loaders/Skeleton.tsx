@@ -8,7 +8,7 @@ export function FriendsCardSkeleton() {
 }
 export default function PostCardSkeleton() {
   return (
-    <article className="relative bg-pure-chalk rounded-xl p-4 border border-soft-dust space-y-3 flex h-fit flex-col items-center animate-pulse">
+    <article className="w-full relative bg-pure-chalk rounded-xl p-4 border border-soft-dust space-y-3 flex h-fit flex-col items-center animate-pulse">
       {/* Header */}
       <div className="flex w-full items-start justify-between">
         <div className="flex items-center gap-3">

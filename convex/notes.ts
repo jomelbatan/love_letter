@@ -1,4 +1,10 @@
-import { mutation, query } from "./_generated/server";
+import { internal } from "./_generated/api";
+import {
+  internalAction,
+  internalMutation,
+  mutation,
+  query,
+} from "./_generated/server";
 import { v } from "convex/values";
 
 export const createNote = mutation({
@@ -28,19 +34,37 @@ export const createNote = mutation({
 });
 
 export const getNote = query({
-  args: { authorId: v.id("authors") },
+  args: {
+    authorId: v.id("authors"),
+  },
+
   handler: async (ctx, args) => {
-    return ctx.db
+    const note = await ctx.db
       .query("notes")
       .withIndex("by_author", (q) => q.eq("authorId", args.authorId))
       .first();
+
+    if (!note || note.expiresAt! <= Date.now()) {
+      return null;
+    }
+
+    return note;
   },
 });
 
-export const deleteSomething = mutation({
-  args: { id: v.string() },
-  handler: async (ctx, args) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await ctx.db.delete(args.id as any);
+export const deleteExpiredNotes = internalMutation({
+  args: {},
+
+  handler: async (ctx) => {
+    const now = Date.now();
+
+    const notes = await ctx.db
+      .query("notes")
+      .withIndex("by_expires_at", (q) => q.lt("expiresAt", now))
+      .collect();
+
+    for (const note of notes) {
+      await ctx.db.delete(note._id);
+    }
   },
 });

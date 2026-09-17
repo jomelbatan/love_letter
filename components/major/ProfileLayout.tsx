@@ -128,13 +128,7 @@ export default function ProfileLayout({ author }: AuthorProps) {
               className="py-6 flex justify-center border-t border-soft-dust"
             >
               {isLoadingMore ? (
-                <>
-                  <PostCardSkeleton />
-                  <div className="flex items-center gap-2 text-3xl font-kalam-bold text-deep-charcoal text-center">
-                    <div className="w-4 h-4 border-2 border-zinc-400 border-t-transparent rounded-full animate-spin" />
-                    Loading more posts...
-                  </div>
-                </>
+                <PostCardSkeleton />
               ) : hasMore ? (
                 <span className="text-3xl font-kalam-bold text-deep-charcoal text-center">
                   Loading more when you get closer...
