@@ -13,6 +13,23 @@ type YouTubeMetadata = {
   thumbnail_url: string;
 };
 
+type YouTubeMusicProps = PostProps & {
+  /** When true, this card behaves as part of a playlist: it will auto-play
+   *  when it becomes the active track and auto-advance when it ends.
+   *  Leave this off (the default) for standalone usage, e.g. on a post. */
+  playlistMode?: boolean;
+  /** Whether this card is the currently-active track in the playlist.
+   *  Only relevant when playlistMode is true. */
+  isActive?: boolean;
+  /** Called when this track finishes playing, so the parent can advance
+   *  to the next track. Only relevant when playlistMode is true. */
+  onEnded?: () => void;
+  /** Called when the user clicks an inactive card in playlist mode, so the
+   *  parent can mark it as the active track. Only relevant when playlistMode
+   *  is true. */
+  onSelect?: () => void;
+};
+
 let youtubeApiPromise: Promise<void> | null = null;
 function loadYouTubeAPI(): Promise<void> {
   if (typeof window === "undefined") {
@@ -41,7 +58,13 @@ function loadYouTubeAPI(): Promise<void> {
   });
   return youtubeApiPromise;
 }
-export default function YouTubeMusic({ post }: PostProps) {
+export default function YouTubeMusic({
+  post,
+  playlistMode = false,
+  isActive = false,
+  onEnded,
+  onSelect,
+}: YouTubeMusicProps) {
   const playerContainerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<any>(null);
   const [metadata, setMetadata] = useState<YouTubeMetadata | null>(null);
@@ -63,9 +86,12 @@ export default function YouTubeMusic({ post }: PostProps) {
         break;
 
       case window.YT?.PlayerState.ENDED:
-        setTimeout(playerRef.current.stopVideo(), 1000);
         setPlaying(false);
+        playerRef.current?.stopVideo();
 
+        if (playlistMode) {
+          onEnded?.();
+        }
         break;
     }
   };
@@ -120,6 +146,33 @@ export default function YouTubeMusic({ post }: PostProps) {
     }
   };
 
+  const handleClick = () => {
+    if (playlistMode && !isActive) {
+      // Hand off to the parent: it'll mark this card active, which the
+      // effect below turns into "start playing".
+      onSelect?.();
+      return;
+    }
+    togglePlay();
+  };
+
+  // Playlist-mode sync: start playback when this card becomes the active
+  // track, and pause it when it stops being active (another track took over).
+  useEffect(() => {
+    if (!playlistMode) return;
+
+    if (isActive) {
+      if (!playerRef.current) {
+        ensurePlayer();
+      } else if (ready && !playing) {
+        playerRef.current.playVideo();
+      }
+    } else if (playerRef.current && ready && playing) {
+      playerRef.current.pauseVideo();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isActive, playlistMode]);
+
   useEffect(() => {
     return () => {
       playerRef.current?.destroy();
@@ -165,9 +218,11 @@ export default function YouTubeMusic({ post }: PostProps) {
         : "text-lg lg:text-xl";
   return (
     <div
-      onClick={togglePlay}
-      className="group relative w-full cursor-pointer select-none
-      rounded-2xl bg-peach-milk text-chalk-terracotta"
+      onClick={handleClick}
+      className={`group relative w-full cursor-pointer select-none
+      rounded-2xl bg-peach-milk text-chalk-terracotta transition-opacity ${
+        playlistMode && !isActive ? "opacity-70 hover:opacity-100" : ""
+      }`}
     >
       {/* Hidden YouTube player */}
       <div

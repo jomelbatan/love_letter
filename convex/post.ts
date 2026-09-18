@@ -284,3 +284,26 @@ export const finalizeStalePendingPost = internalAction({
     if (!result) return;
   },
 });
+
+export const getUserPlaylist = query({
+  args: {
+    authorId: v.id("authors"),
+    paginationOpts: paginationOptsValidator,
+  },
+
+  handler: async (ctx, args) => {
+    return ctx.db
+      .query("posts")
+      .withIndex("by_author_published", (q) =>
+        q.eq("authorId", args.authorId).eq("published", true),
+      )
+      .filter((q) =>
+        q.or(
+          q.eq(q.field("embedType"), "YOUTUBE_MUSIC"),
+          q.eq(q.field("embedType"), "SPOTIFY"),
+        ),
+      )
+      .order("desc")
+      .paginate(args.paginationOpts);
+  },
+});

@@ -1,6 +1,5 @@
 import Hero from "@/components/major/Hero";
-import AfterwordNavbar from "@/components/major/NavBar";
-import ProfileTabs from "@/components/major/ProfileTabs";
+import ProfileNav from "@/components/major/ProfileNav";
 import { api } from "@/convex/_generated/api";
 import { fetchQuery } from "convex/nextjs";
 import { notFound } from "next/navigation";
@@ -27,7 +26,7 @@ export default async function UserTimeline({ params }: Props) {
       <div id="fb-root"></div>
       <div className="relative px-0 lg:px-64">
         <Hero author={author} note={note} />
-        <ProfileTabs author={author} />
+        <ProfileNav author={author} />
       </div>
       <Script async src="https://www.instagram.com/embed.js" />
       <Script

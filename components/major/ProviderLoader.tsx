@@ -1,6 +1,7 @@
 "use client";
 import { api } from "@/convex/_generated/api";
 import PictureProvider from "@/providers/PhotoProvider";
+import PlaylistProvider from "@/providers/PlaylistProvider";
 import PostProvider from "@/providers/PostProvider";
 import ProfileProvider from "@/providers/ProfileProvider";
 import { AuthorProps } from "@/types/props";
@@ -30,6 +31,17 @@ export default function ProviderLoader({
     authorId: author._id,
   });
   const photos = useQuery(api.photos.getUserPhotos, { authorId: author._id });
+  const {
+    results: playlist,
+    status: playlistStatus,
+    loadMore: playlistLoadmore,
+    isLoading: playlisLoading,
+  } = usePaginatedQuery(
+    api.post.getUserPlaylist,
+    author ? { authorId: author._id } : "skip",
+    { initialNumItems: 10 },
+  );
+
   return (
     <ProfileProvider
       friends={friends}
@@ -42,7 +54,14 @@ export default function ProviderLoader({
         loadMore={loadMore}
         isLoading={postsLoading}
       >
-        <PictureProvider pictures={photos ?? []}>{children}</PictureProvider>
+        <PlaylistProvider
+          playlist={playlist}
+          isLoading={playlisLoading}
+          loadMore={playlistLoadmore}
+          status={playlistStatus}
+        >
+          <PictureProvider pictures={photos ?? []}>{children}</PictureProvider>
+        </PlaylistProvider>
       </PostProvider>
     </ProfileProvider>
   );
