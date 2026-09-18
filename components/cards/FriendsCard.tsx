@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { User } from "lucide-react";
 import Image from "next/image";
-import { formatWordS } from "@/libs/date";
+import { formatWordS } from "@/libs/format";
 import { FriendsCardSkeleton } from "../loaders/Skeleton";
 import { useProfile } from "@/providers/ProfileProvider";
 

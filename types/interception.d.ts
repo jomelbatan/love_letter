@@ -14,7 +14,13 @@ export interface PendingPost {
 
 export type PostType = "TEXT" | "LETTER" | "IMAGE" | "EMBED";
 export type EmbedType =
-  "SPOTIFY" | "TIKTOK" | "FACEBOOK" | "YOUTUBE" | "INSTAGRAM" | "LINK";
+  | "SPOTIFY"
+  | "TIKTOK"
+  | "FACEBOOK"
+  | "YOUTUBE"
+  | "YOUTUBE_MUSIC"
+  | "INSTAGRAM"
+  | "LINK";
 export interface AuthorRecord {
   _id: Id<"authorAccounts">;
   _creationTime: number;

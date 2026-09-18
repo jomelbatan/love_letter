@@ -1,6 +1,6 @@
 import { Pointer, UserRoundCheck, UserRoundPlus } from "lucide-react";
 import Image from "next/image";
-import { formatWordS } from "@/libs/date";
+import { formatCount, formatWordS } from "@/libs/format";
 import { AuthorProps } from "@/types/props";
 import ChatBubble from "../cards/ChatBubble";
 import { Doc } from "@/convex/_generated/dataModel";
@@ -9,7 +9,7 @@ import { coverImages } from "@/data";
 type HeroProps = AuthorProps & { note: Doc<"notes"> | null | undefined };
 export default function Hero({ author, note }: HeroProps) {
   const selectedImage = coverImages[author.name.toLocaleLowerCase()];
-  console.log("DE: ", selectedImage);
+
   return (
     <div className="w-full">
       <div className="relative w-full aspect-video md:aspect-851/315 overflow-hidden lg:rounded-2xl">
@@ -42,7 +42,7 @@ export default function Hero({ author, note }: HeroProps) {
                 {author.postCount > 1 && (
                   <>
                     ·
-                    <p>{`${author.postCount} ${formatWordS("post", author.postCount)}`}</p>
+                    <p>{`${formatCount(author.postCount)} ${formatWordS("post", author.postCount)}`}</p>
                   </>
                 )}
               </div>

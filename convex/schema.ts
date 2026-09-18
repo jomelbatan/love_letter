@@ -61,6 +61,7 @@ export default defineSchema({
         v.literal("TIKTOK"),
         v.literal("FACEBOOK"),
         v.literal("YOUTUBE"),
+        v.literal("YOUTUBE_MUSIC"),
         v.literal("INSTAGRAM"),
         v.literal("LINK"),
       ),
@@ -70,7 +71,8 @@ export default defineSchema({
   })
     .index("by_author", ["authorId"])
     .index("by_published", ["published"])
-    .index("by_author_published", ["authorId", "published"]),
+    .index("by_author_published", ["authorId", "published"])
+    .index("by_author_type", ["authorId", "embedType"]),
 
   pendingPosts: defineTable({
     psid: v.string(),
@@ -88,6 +90,7 @@ export default defineSchema({
         v.literal("TIKTOK"),
         v.literal("FACEBOOK"),
         v.literal("YOUTUBE"),
+        v.literal("YOUTUBE_MUSIC"),
         v.literal("INSTAGRAM"),
         v.literal("LINK"),
       ),

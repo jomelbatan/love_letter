@@ -2,7 +2,6 @@
 
 import { usePicture } from "@/providers/PhotoProvider";
 import Image from "next/image";
-import Link from "next/link";
 
 export default function PhotoCard() {
   const { pictures, setSelectedPhoto } = usePicture();

@@ -46,13 +46,11 @@ export default function PostCard({
 
         <CopyButton textToCopy={post._id} />
       </div>
-
       {post.text && (
         <p className="px-2 w-full text-3xl font-bold font-yuyu text-deep-charcoal  leading-none">
           {post.text}
         </p>
       )}
-
       {post.embedUrl && post.embedType === "FACEBOOK" && (
         <FacebookReel post={post} />
       )}
@@ -60,14 +58,9 @@ export default function PostCard({
         <Instagram post={post} />
       )}
       {post.embedUrl && post.embedType === "TIKTOK" && <Tiktok post={post} />}
-      {post.embedUrl && post.embedType === "YOUTUBE" && (
-        <>
-          {post.embedUrl.includes("music") ? (
-            <YouTubeMusic post={post} />
-          ) : (
-            <Youtube post={post} />
-          )}
-        </>
+      {post.embedUrl && post.embedType === "YOUTUBE" && <Youtube post={post} />}
+      {post.embedUrl && post.embedType === "YOUTUBE_MUSIC" && (
+        <YouTubeMusic post={post} />
       )}
       {post.embedUrl && post.embedType === "SPOTIFY" && <Spotify post={post} />}
     </article>

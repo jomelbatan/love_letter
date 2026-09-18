@@ -86,7 +86,11 @@ export async function parseContent(text: string) {
       embedUrl = await getCanonicalTikTokUrl(embedUrl);
     }
   } else if (lower.includes("youtube.com") || lower.includes("youtu.be")) {
-    embedType = "YOUTUBE";
+    if (lower.includes("music.youtube.com")) {
+      embedType = "YOUTUBE_MUSIC";
+    } else {
+      embedType = "YOUTUBE";
+    }
   } else if (lower.includes("facebook.com") || lower.includes("fb.watch")) {
     embedType = "FACEBOOK";
 
