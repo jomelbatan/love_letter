@@ -24,10 +24,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <Analytics />
-        <ConvexClientProvider>
-          <AfterwordNavbar />
-          {children}
-        </ConvexClientProvider>
+        <ConvexClientProvider>{children}</ConvexClientProvider>
       </body>
     </html>
   );

@@ -4,42 +4,110 @@
 :root {
   --background: var(--color-chalk-cream);
   --foreground: var(--color-deep-charcoal);
+
+  --card: var(--color-pure-chalk);
+  --card-foreground: var(--color-deep-charcoal);
+  --border: var(--color-soft-dust);
+  --muted-foreground: var(--color-warm-dust);
+
+  --primary: var(--color-chalk-terracotta);
+  --primary-foreground: var(--color-off-white);
+  --secondary: var(--color-peach-milk);
+  --secondary-foreground: var(--color-deep-charcoal);
+  --link: var(--color-chalk-perwinkle);
+
+  --pink: var(--color-dusty-pink);
+  --pink-foreground: var(--color-deep-charcoal);
+  --butter: var(--color-chalk-butter-yellow);
+  --butter-foreground: var(--color-deep-charcoal);
+  --sage: var(--color-pastel-sage);
+  --sage-foreground: var(--color-deep-charcoal);
+  --mint: var(--color-mint-foam);
+  --mint-foreground: var(--color-deep-charcoal);
+  --lavender: var(--color-chalk-lavender);
+  --lavender-foreground: var(--color-deep-charcoal);
+  --peach: var(--color-peach-milk);
+  --tape: color-mix(in srgb, var(--color-chalk-butter-yellow) 80%, transparent);
+  --note: #fffaf0;
+  --image-shadow: color-mix(
+    in srgb,
+    var(--color-deep-charcoal) 22%,
+    transparent
+  );
+
+  --spotify: #4c8567;
+  --spotify-foreground: var(--color-off-white);
+  --youtube: #d97757;
+  --video: #2f2622;
+  --video-dot: color-mix(in srgb, var(--color-off-white) 20%, transparent);
+  --video-foreground: var(--color-off-white);
+  --instagram: #c9789a;
+  --facebook: var(--color-chalk-perwinkle);
+  --facebook-foreground: var(--color-off-white);
+  --facebook-soft: color-mix(
+    in srgb,
+    var(--color-chalk-perwinkle) 8%,
+    var(--color-pure-chalk)
+  );
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-link: var(--link);
+
+  --color-pink: var(--pink);
+  --color-pink-foreground: var(--pink-foreground);
+  --color-butter: var(--butter);
+  --color-butter-foreground: var(--butter-foreground);
+  --color-sage: var(--sage);
+  --color-sage-foreground: var(--sage-foreground);
+  --color-mint: var(--mint);
+  --color-mint-foreground: var(--mint-foreground);
+  --color-lavender: var(--lavender);
+  --color-lavender-foreground: var(--lavender-foreground);
+  --color-peach: var(--peach);
+  --color-tape: var(--tape);
+  --color-note: var(--note);
+
+  --color-spotify: var(--spotify);
+  --color-spotify-foreground: var(--spotify-foreground);
+  --color-youtube: var(--youtube);
+  --color-video: var(--video);
+  --color-video-dot: var(--video-dot);
+  --color-video-foreground: var(--video-foreground);
+  --color-instagram: var(--instagram);
+  --color-facebook: var(--facebook);
+  --color-facebook-foreground: var(--facebook-foreground);
+  --color-facebook-soft: var(--facebook-soft);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-yuyu: var(--font-yuyu-family);
-  --font-kalam: var(--font-kalam-family);
-  --font-kalam-bold: var(--font-kalam-bold-family);
+  --font-hand: var(--font-kalam-bold-family);
 
+  /* raw palette, kept available as utilities (bg-chalk-terracotta, text-chalk-lavender, etc.) */
   --color-primary-orange: #e0a36d;
   --color-accent-pink: #f4c5cd;
   --color-text-brown: #5c4b40;
   --color-off-white: #fff6ea;
-
-  /**Page Background**/
   --color-chalk-cream: #faf5ef;
-  /**Border / Divider**/
   --color-soft-dust: #e8dfd5;
-  /**Card Surface**/
   --color-pure-chalk: #ffffff;
-  /**Primary Text**/
   --color-deep-charcoal: #3a2e2b;
-  /**Muted Text**/
   --color-warm-dust: #786b62;
-
-  /**Primary Action**/
   --color-chalk-terracotta: #e58e6d;
-  /**Primary Soft Tint**/
   --color-peach-milk: #fdeee6;
-  /**Secondary Action**/
   --color-dusty-pink: #f1bdc4;
-  /**Link Accent**/
   --color-chalk-perwinkle: #5c7cfa;
-
   --color-chalk-butter-yellow: #f7e4a9;
   --color-pastel-sage: #b8d8ba;
   --color-chalk-lavender: #dbc7e3;
@@ -50,6 +118,43 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* subtle speckled paper texture used behind hero/how-it-works sections */
+.paper-speckle {
+  background-image: radial-gradient(
+    var(--color-soft-dust) 1px,
+    transparent 1px
+  );
+  background-size: 18px 18px;
+  background-position: -9px -9px;
+}
+
+.shadow-paper {
+  box-shadow: 0 24px 44px -28px var(--image-shadow);
+}
+
+.shadow-note {
+  box-shadow: 0 16px 28px -14px var(--image-shadow);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-rise {
+  animation: rise 0.6s ease-out both;
+}
+
+.animate-rise-delayed {
+  animation: rise 0.6s ease-out 0.15s both;
 }
 
 @keyframes music-bar {
@@ -66,4 +171,12 @@ body {
   animation-name: music-bar;
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise,
+  .animate-rise-delayed,
+  .animate-music-bar {
+    animation: none;
+  }
 }
