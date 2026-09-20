@@ -8,10 +8,10 @@ export function HowItWorksSection() {
       <div className="mx-auto max-w-6xl px-5 lg:px-8">
         <div className="grid items-center gap-14 lg:grid-cols-[0.75fr_1.25fr]">
           <div>
-            <p className="font-hand text-lg font-bold text-primary">
+            <span className="inline-flex items-center font-kalam-bold text-sm font-bold text-primary">
               easy as sending a message
-            </p>
-            <h2 className="mt-2 font-hand text-4xl font-bold sm:text-5xl">
+            </span>
+            <h2 className="mt-4 font-kalam-bold text-4xl font-bold sm:text-5xl">
               No sign-up.
               <br />
               No spotlight.
@@ -28,6 +28,10 @@ export function HowItWorksSection() {
             </Button>
           </div>
           <ol className="relative grid gap-5">
+            <span
+              aria-hidden="true"
+              className="absolute bottom-10 left-7 top-10 hidden w-px bg-border sm:block"
+            />
             <FlowStep
               number="01"
               icon={Send}

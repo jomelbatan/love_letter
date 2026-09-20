@@ -12,7 +12,7 @@ export function FacebookCard() {
           <p className="text-xs text-muted-foreground">Shared from Facebook</p>
         </div>
       </div>
-      <p className="mt-8 font-hand text-2xl leading-9">
+      <p className="mt-8 font-kalam-bold text-2xl leading-9">
         The best afternoons are still the ones with no plan at all.
       </p>
       <div className="mt-8 flex h-24 items-center justify-center rounded-md bg-card text-4xl shadow-sm">

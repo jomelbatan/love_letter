@@ -20,10 +20,10 @@ export function FinalCtaSection() {
         ♡
       </div>
       <div className="relative mx-auto max-w-3xl px-5 text-center">
-        <span className="inline-block rotate-[-4deg] rounded-sm bg-butter px-4 py-2 font-hand text-sm font-bold text-butter-foreground">
+        <span className="inline-block rotate-[-4deg] rounded-sm bg-butter px-4 py-2 font-kalam-bold text-sm font-bold text-butter-foreground">
           there&rsquo;s room for your story
         </span>
-        <h2 className="mt-6 font-hand text-4xl font-bold sm:text-6xl">
+        <h2 className="mt-6 font-kalam-bold text-4xl font-bold sm:text-6xl">
           Leave a little piece of today behind.
         </h2>
         <p className="mx-auto mt-5 max-w-xl text-lg leading-8 text-primary-foreground/80">

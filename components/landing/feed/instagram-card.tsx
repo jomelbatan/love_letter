@@ -11,7 +11,7 @@ export function InstagramCard() {
       </div>
       <div className="flex flex-col justify-center p-6">
         <Instagram className="size-6 text-instagram" />
-        <p className="mt-5 font-hand text-2xl font-bold">
+        <p className="mt-5 font-kalam-bold text-2xl font-bold">
           Today looked a little like this.
         </p>
         <p className="mt-3 text-sm leading-6 text-muted-foreground">

@@ -1,12 +1,8 @@
 "use client";
+import Afterword from "@/public/covers/afterword.png";
 
-import {
-  Bell,
-  CircleUserRound,
-  MessageCircle,
-  PawPrint,
-  SquareText,
-} from "lucide-react";
+import { Bell, CircleUserRound, MessageCircle, SquareText } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 export default function AfterwordNavbar() {
@@ -19,10 +15,7 @@ export default function AfterwordNavbar() {
                    backdrop-blur-sm sm:px-5"
       >
         <Link href="/" className="group flex shrink-0 items-center gap-1.5">
-          <PawPrint className="text-deep-charcoal size-10" />
-          <span className="font-kalam-bold text-xl text-deep-charcoal">
-            afterword
-          </span>
+          <Image src={Afterword} alt="Afterword Logo" height={28} width={200} />
         </Link>
 
         <div className="flex flex-row gap-4">

@@ -16,15 +16,23 @@ export function FlowStep({
   color,
 }: FlowStepProps) {
   return (
-    <li className="group grid grid-cols-[auto_1fr] gap-5 rounded-lg border border-border bg-card p-5 shadow-sm transition-transform hover:-translate-y-1 sm:p-6">
+    <li className="group relative grid grid-cols-[auto_1fr] gap-5 overflow-hidden border-2 border-border bg-card p-5 transition-colors hover:border-primary/50 sm:p-6">
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-2 -top-7 font-kalam-bold text-7xl font-bold text-foreground/5 sm:text-8xl"
+      >
+        {number}
+      </span>
       <div
-        className={`grid size-14 place-items-center rounded-md ${color ?? ""}`}
+        className={`relative z-10 grid size-14 rotate-3 place-items-center rounded-full border-2 border-foreground/15 ring-4 ring-card ${color}`}
       >
         <Icon className="size-6" />
       </div>
-      <div>
-        <p className="text-xs font-black text-primary">STEP {number}</p>
-        <h3 className="mt-1 font-hand text-xl font-bold">{title}</h3>
+      <div className="relative z-10">
+        <p className="text-xs font-black tracking-wide text-primary">
+          STEP {number}
+        </p>
+        <h3 className="mt-1 font-kalam-bold text-xl font-bold">{title}</h3>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p>
       </div>
     </li>

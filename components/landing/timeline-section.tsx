@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Clock3, Heart } from "lucide-react";
 import { feedTabs, animalProfiles, type FeedType } from "@/libs/timeline-data";
 import { FeedContent } from "./feed/feed-content";
+import Image from "next/image";
 
 export function TimelineSection() {
   const [activeFeed, setActiveFeed] = useState<FeedType>("note");
@@ -13,10 +14,10 @@ export function TimelineSection() {
     <section id="timeline" className="relative bg-secondary py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-5 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="font-hand text-lg font-bold text-primary">
+          <p className="font-kalam-bold text-lg font-bold text-primary">
             a little peek inside
           </p>
-          <h2 className="mt-2 font-hand text-4xl font-bold sm:text-5xl">
+          <h2 className="mt-2 font-kalam-bold text-4xl font-bold sm:text-5xl">
             One feed, all your favorites.
           </h2>
           <p className="mt-4 text-muted-foreground">
@@ -57,11 +58,15 @@ export function TimelineSection() {
           />
           <article className="overflow-hidden rounded-lg border border-border bg-card shadow-paper">
             <div className="flex items-center gap-3 border-b border-border px-5 py-4">
-              <span className="grid size-12 place-items-center rounded-full bg-peach text-2xl ring-4 ring-background">
-                {profile.emoji}
-              </span>
+              <Image
+                src={profile.profile}
+                alt={profile.name}
+                width={48}
+                height={48}
+                className="grid size-12 place-items-center rounded-full bg-peach text-2xl ring-4 ring-background"
+              />
               <div className="min-w-0 flex-1">
-                <h3 className="font-hand text-lg font-bold capitalize">
+                <h3 className="font-kalam-bold text-lg font-bold capitalize">
                   {profile.name}
                 </h3>
                 <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -72,7 +77,7 @@ export function TimelineSection() {
                 kind corner
               </span>
             </div>
-            <div className="min-h-[330px] p-5 sm:p-7">
+            <div className="min-h-82.5 p-5 sm:p-7">
               <FeedContent type={activeFeed} />
             </div>
             <div className="flex items-center justify-between border-t border-border px-5 py-3 text-sm font-semibold text-muted-foreground">

@@ -2,6 +2,7 @@ import Hero from "@/components/major/Hero";
 import AfterwordNavbar from "@/components/major/NavBar";
 import ProfileNav from "@/components/major/ProfileNav";
 import { api } from "@/convex/_generated/api";
+import { capitalizeFirstLetter } from "@/libs/format";
 import { fetchQuery } from "convex/nextjs";
 import { notFound } from "next/navigation";
 import Script from "next/script";
@@ -12,8 +13,9 @@ type Props = {
 
 export default async function UserTimeline({ params }: Props) {
   const { username } = await params;
+  const name = capitalizeFirstLetter(username);
   const author = await fetchQuery(api.author.getAuthorByName, {
-    username,
+    username: name,
   });
   if (!author) {
     notFound();

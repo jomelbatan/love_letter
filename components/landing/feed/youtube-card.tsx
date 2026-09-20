@@ -12,7 +12,7 @@ export function YoutubeCard() {
         <span className="grid size-16 place-items-center rounded-full bg-youtube shadow-lg transition-transform group-hover:scale-105">
           <Play className="ml-1 size-7" fill="currentColor" />
         </span>
-        <h4 className="mt-5 font-hand text-2xl font-bold">
+        <h4 className="mt-5 font-kalam-bold text-2xl font-bold">
           A tiny concert for a rainy day
         </h4>
         <p className="mt-1 text-sm opacity-80">4:18 · shared from YouTube</p>

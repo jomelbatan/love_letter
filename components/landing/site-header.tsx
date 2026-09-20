@@ -1,5 +1,7 @@
 import { Heart } from "lucide-react";
 import { Button } from "@/components/button/button";
+import Afterword from "@/public/covers/afterword.png";
+import Image from "next/image";
 
 export function SiteHeader() {
   return (
@@ -10,12 +12,7 @@ export function SiteHeader() {
           className="flex items-center gap-2.5"
           aria-label="Afterword home"
         >
-          <span className="grid size-10 rotate-[-4deg] place-items-center rounded-[42%] bg-primary text-xl shadow-sm">
-            🐾
-          </span>
-          <span className="font-hand text-2xl font-bold text-foreground">
-            afterword.
-          </span>
+          <Image src={Afterword} alt="Afterword Logo" height={30} width={250} />
         </a>
         <nav
           className="hidden items-center gap-7 text-sm font-bold text-muted-foreground md:flex"

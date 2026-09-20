@@ -92,8 +92,9 @@
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-hand: var(--font-kalam-bold-family);
-
+  --font-kalam-bold: var(--font-kalam-bold-family);
+  --font-kalam: var(--font-kalam-family);
+  --font-yuyu: var(--font-yuyu-family);
   /* raw palette, kept available as utilities (bg-chalk-terracotta, text-chalk-lavender, etc.) */
   --color-primary-orange: #e0a36d;
   --color-accent-pink: #f4c5cd;

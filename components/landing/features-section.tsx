@@ -5,18 +5,25 @@ export function FeaturesSection() {
   return (
     <section
       id="features"
-      className="border-y border-border bg-card py-20 sm:py-28"
+      className="relative border-y border-border bg-card py-20 sm:py-28"
     >
+      <div aria-hidden="true" className="absolute inset-x-0 top-0 flex h-1.5">
+        <span className="flex-1 bg-primary" />
+        <span className="flex-1 bg-pink" />
+        <span className="flex-1 bg-butter" />
+        <span className="flex-1 bg-sage" />
+        <span className="flex-1 bg-mint" />
+      </div>
       <div className="mx-auto max-w-6xl px-5 lg:px-8">
         <div className="max-w-2xl">
-          <p className="font-hand text-lg font-bold text-primary">
+          <span className="inline-flex font-kalam-bold text-sm font-bold text-primary">
             the lovely little details
-          </p>
-          <h2 className="mt-2 font-hand text-4xl font-bold sm:text-5xl">
+          </span>
+          <h2 className="mt-4 font-kalam-bold text-4xl font-bold sm:text-5xl">
             Made for sharing softly.
           </h2>
         </div>
-        <div className="mt-10 grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           <FeatureCard
             icon={Play}
             title="Everything plays here"
