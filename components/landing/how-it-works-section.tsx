@@ -1,4 +1,10 @@
-import { Heart, Link2, MessageCircleHeart, Send } from "lucide-react";
+import {
+  Heart,
+  Link2,
+  MessageCircle,
+  MessageCircleHeart,
+  Send,
+} from "lucide-react";
 import { Button } from "@/components/button/button";
 import { FlowStep } from "./flow-step";
 
@@ -8,23 +14,24 @@ export function HowItWorksSection() {
       <div className="mx-auto max-w-6xl px-5 lg:px-8">
         <div className="grid items-center gap-14 lg:grid-cols-[0.75fr_1.25fr]">
           <div>
-            <span className="inline-flex items-center font-kalam-bold text-sm font-bold text-primary">
+            <span className="inline-flex md:text-start items-center font-kalam-bold text-sm font-bold text-primary">
               easy as sending a message
             </span>
-            <h2 className="mt-4 font-kalam-bold text-4xl font-bold sm:text-5xl">
-              No sign-up.
-              <br />
-              No spotlight.
-              <br />
-              Just share.
+            <h2 className="mt-4 font-kalam-bold text-4xl font-bold sm:text-5xl lg:max-w-72">
+              No sign-up. No spotlight. Just share.
             </h2>
             <p className="mt-5 max-w-md leading-7 text-muted-foreground">
               Find something that feels like you? Send it to Afterword on
               Messenger. We&rsquo;ll tuck it into the timeline without your name
               attached.
             </p>
-            <Button href="#final-cta" size="lg" className="mt-7">
-              <MessageCircleHeart className="size-5" /> Open Messenger
+            <Button
+              href="https://www.facebook.com/afterword.feed"
+              target="_blank"
+              size="lg"
+              className="mt-7"
+            >
+              <MessageCircle className="size-5" /> Open Messenger
             </Button>
           </div>
           <ol className="relative grid gap-5">

@@ -1,4 +1,4 @@
-import { ArrowRight, MessageCircleHeart } from "lucide-react";
+import { ArrowRight, MessageCircle } from "lucide-react";
 import { Button } from "@/components/button/button";
 
 export function FinalCtaSection() {
@@ -34,8 +34,13 @@ export function FinalCtaSection() {
           <Button href="#timeline" variant="secondary" size="lg">
             Visit the timeline <ArrowRight className="size-5" />
           </Button>
-          <Button href="#how-it-works" variant="dark" size="lg">
-            <MessageCircleHeart className="size-5" /> Submit a thought
+          <Button
+            href="https://www.facebook.com/afterword.feed"
+            target="_blank"
+            variant="dark"
+            size="lg"
+          >
+            <MessageCircle className="size-5" /> Submit a thought
           </Button>
         </div>
       </div>

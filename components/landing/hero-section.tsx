@@ -1,5 +1,10 @@
 import Image from "next/image";
-import { ArrowRight, MessageCircleHeart, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  MessageCircle,
+  MessageCircleHeart,
+  Sparkles,
+} from "lucide-react";
 import { Button } from "@/components/button/button";
 import mascotArt from "@/public/images/mascot.png";
 import { avatars } from "@/data";
@@ -30,9 +35,13 @@ export function HeroSection() {
             <Button href="#timeline" size="lg">
               Open the timeline <ArrowRight className="size-5" />
             </Button>
-            <Button href="#how-it-works" size="lg" variant="secondary">
-              <MessageCircleHeart className="size-5 text-link" /> Send via
-              Messenger
+            <Button
+              href="https://www.facebook.com/afterword.feed"
+              target="_blank"
+              size="lg"
+              variant="secondary"
+            >
+              <MessageCircle className="size-5" /> Send via Messenger
             </Button>
           </div>
           <div className="mt-8 flex items-center gap-3 text-sm font-semibold text-muted-foreground">

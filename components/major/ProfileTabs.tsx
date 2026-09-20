@@ -2,6 +2,7 @@
 import React from "react";
 import { TabId } from "./ProfileNav";
 import { usePlaylist } from "@/providers/PlaylistProvider";
+import ShareButton from "../button/ShareButton";
 
 interface Tab {
   id: TabId;

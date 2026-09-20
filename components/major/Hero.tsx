@@ -5,6 +5,7 @@ import { AuthorProps } from "@/types/props";
 import ChatBubble from "../cards/ChatBubble";
 import { Doc } from "@/convex/_generated/dataModel";
 import { coverImages } from "@/data";
+import ShareButton from "../button/ShareButton";
 
 type HeroProps = AuthorProps & { note: Doc<"notes"> | null | undefined };
 export default function Hero({ author, note }: HeroProps) {
@@ -50,24 +51,27 @@ export default function Hero({ author, note }: HeroProps) {
             </div>
           </div>
         </div>
-        <div className="flex flex-row gap-2 h-fit mt-4 lg:mt-0">
-          {author.name === "Melo" ? (
-            <button className="px-4 py-2 border-2 border-chalk-terracotta flex flex-row gap-2 rounded-xl cursor-pointer">
-              <UserRoundCheck className="text-chalk-terracotta size-5" />
-              <p className="text-chalk-terracotta font-kalam-bold">Friends</p>
+        <div className="h-fit mt-4 lg:mt-0 shrink-0 gap-2 flex flex-col p-1">
+          <div className="flex flex-row gap-2 ">
+            {author.name === "Melo" ? (
+              <button className="px-4 py-2 border-2 border-chalk-terracotta flex flex-row gap-2 rounded-xl cursor-pointer">
+                <UserRoundCheck className="text-chalk-terracotta size-5" />
+                <p className="text-chalk-terracotta font-kalam-bold">Friends</p>
+              </button>
+            ) : (
+              <button className="px-4 py-2 border-2 border-chalk-terracotta flex flex-row gap-2 rounded-xl cursor-pointer">
+                <UserRoundPlus className="text-chalk-terracotta size-5" />
+                <p className="text-chalk-terracotta font-kalam-bold">
+                  Add Friend
+                </p>
+              </button>
+            )}
+            <button className="px-4 py-2 bg-chalk-terracotta flex flex-row items-center justify-center gap-2 rounded-xl cursor-pointer">
+              <Pointer className="text-white size-5" />
+              <p className="text-white font-kalam-bold">Poke</p>
             </button>
-          ) : (
-            <button className="px-4 py-2 border-2 border-chalk-terracotta flex flex-row gap-2 rounded-xl cursor-pointer">
-              <UserRoundPlus className="text-chalk-terracotta size-5" />
-              <p className="text-chalk-terracotta font-kalam-bold">
-                Add Friend
-              </p>
-            </button>
-          )}
-          <button className="px-4 py-2 bg-chalk-terracotta flex flex-row items-center justify-center gap-2 rounded-xl cursor-pointer">
-            <Pointer className="text-white size-5" />
-            <p className="text-white font-kalam-bold">Poke</p>
-          </button>
+          </div>
+          <ShareButton />
         </div>
       </div>
 

@@ -1,12 +1,12 @@
 import Carrots from "@/public/covers/carrots.png";
 import Girl from "@/public/covers/girl.png";
-import Rabbit from "@/public/images/rabbit.png";
-import Cat from "@/public/images/cat.png";
-import Seal from "@/public/images/seal.png";
-import Bear from "@/public/images/bear.png";
-import Otter from "@/public/images/otter.png";
-import Chick from "@/public/images/chick.png";
-import Penguin from "@/public/images/penguin.png";
+import Rabbit from "@/public/profile/rabbit.png";
+import Cat from "@/public/profile/cat.png";
+import Seal from "@/public/profile/seal.png";
+import Bear from "@/public/profile/bear.png";
+import Otter from "@/public/profile/otter.png";
+import Chick from "@/public/profile/chick.png";
+import Penguin from "@/public/profile/penguin.png";
 
 import { StaticImageData } from "next/image";
 
