@@ -6,6 +6,7 @@ export const createAuthor = mutation({
     name: v.string(),
     avatarUrl: v.string(),
     postCount: v.number(),
+    friendCount: v.number(),
   },
 
   handler: async (ctx, args) => {

@@ -17,6 +17,7 @@ export interface FriendItem {
 
 export default function FriendsCard() {
   const { friends, friendsLoading, friendsCount } = useProfile();
+  if (!friends || friends.length === 0) return null;
   return (
     <section className="bg-pure-chalk rounded-xl p-4 border border-soft-dust shadow-sm text-zinc-100">
       {/* Header */}

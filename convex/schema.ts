@@ -5,7 +5,10 @@ export default defineSchema({
   authors: defineTable({
     name: v.string(),
     avatarUrl: v.string(),
+    status: v.optional(v.union(v.literal("ACTIVE"), v.literal("VACANT"))),
+    privacy: v.optional(v.union(v.literal("PUBLIC"), v.literal("PRIVATE"))),
     postCount: v.number(),
+    friendCount: v.number(),
     personalDetails: v.optional(
       v.object({
         location: v.optional(v.string()),

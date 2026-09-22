@@ -23,7 +23,6 @@ export default async function UserTimeline({ params }: Props) {
   const note = await fetchQuery(api.notes.getNote, {
     authorId: author._id,
   });
-
   return (
     <>
       <AfterwordNavbar />

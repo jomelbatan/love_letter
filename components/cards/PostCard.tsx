@@ -10,6 +10,7 @@ import Spotify from "../micro/Spotify";
 import { CopyButton } from "../button/CopyButton";
 import { Instagram } from "../micro/Instagram";
 import YouTubeMusic from "../micro/YoutubeMusic";
+import { MentionText } from "../micro/MentionText";
 
 export default function PostCard({
   post,
@@ -48,7 +49,7 @@ export default function PostCard({
       </div>
       {post.text && (
         <p className="px-2 w-full text-3xl font-bold font-yuyu text-deep-charcoal  leading-none">
-          {post.text}
+          <MentionText text={post.text} />
         </p>
       )}
       {post.embedUrl && post.embedType === "FACEBOOK" && (

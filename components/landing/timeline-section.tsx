@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Clock3, Heart } from "lucide-react";
+import { BadgeCheck, Clock3, Globe, Heart } from "lucide-react";
 import { feedTabs, animalProfiles, type FeedType } from "@/libs/timeline-data";
 import { FeedContent } from "./feed/feed-content";
 import Image from "next/image";
+import Link from "next/link";
 
 export function TimelineSection() {
   const [activeFeed, setActiveFeed] = useState<FeedType>("note");
@@ -57,22 +58,33 @@ export function TimelineSection() {
             aria-hidden="true"
           />
           <article className="overflow-hidden rounded-lg border border-border bg-card shadow-paper">
-            <div className="flex items-center gap-3 border-b border-border px-5 py-4">
-              <Image
-                src={profile.profile}
-                alt={profile.name}
-                width={48}
-                height={48}
-                className="grid size-12 place-items-center rounded-full bg-peach text-2xl ring-4 ring-background"
-              />
-              <div className="min-w-0 flex-1">
-                <h3 className="font-kalam-bold text-lg font-bold capitalize">
-                  {profile.name}
-                </h3>
-                <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Clock3 className="size-3" /> {profile.time} · anonymous
-                </p>
+            <div className="flex w-full items-center justify-between px-8 pt-8">
+              <div className="flex items-center gap-3">
+                <div className="avatar size-14 bg-chalk-cream rounded-full border border-chalk-terracotta">
+                  <Image
+                    src={profile.profile}
+                    alt={`${profile.name}'s avatar`}
+                    fill
+                    className="object-cover rounded-full"
+                  />
+                </div>
+                <div>
+                  <div className="flex items-center gap-1">
+                    <Link href={`/${profile.name.toLocaleLowerCase()}`}>
+                      <span className="font-kalam-bold text-2xl">
+                        {profile.name}
+                      </span>
+                    </Link>
+                    <BadgeCheck className="size-5" />
+                  </div>
+                  <div className="flex items-center text-xs text-zinc-400">
+                    <span>{profile.time}</span>
+                    <span>·</span>
+                    <Globe className="w-3 h-3 inline" />
+                  </div>
+                </div>
               </div>
+
               <span className="rounded-full bg-sage px-3 py-1 text-xs font-bold text-sage-foreground">
                 kind corner
               </span>

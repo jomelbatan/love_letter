@@ -258,33 +258,25 @@ async function dispatchMessage(
         "Do you want to add some caption? Write it down or type no",
       );
       return;
-    case "interruptCaptionWithNewPost":
-      {
-        const { type, embedType, embedUrl } = await parseContent(intent.url);
-        await convex.mutation(api.post.resolveThenSavePendingPost, {
-          psid: senderId,
-          accountId: author._id,
-          authorId: author.authorId,
-          type,
-          embedUrl: embedUrl ?? undefined,
-          embedType,
-          initialText: "",
-          platform: payload,
-        });
-        await sendReply(
-          payload,
-          senderId,
-          "Do you want to add some caption? Write it down or type no",
-        );
-        return;
-      }
-
+    case "interruptCaptionWithNewPost": {
+      const { type, embedType, embedUrl } = await parseContent(intent.url);
+      await convex.mutation(api.post.resolveThenSavePendingPost, {
+        psid: senderId,
+        accountId: author._id,
+        authorId: author.authorId,
+        type,
+        embedUrl: embedUrl ?? undefined,
+        embedType,
+        initialText: "",
+        platform: payload,
+      });
       await sendReply(
         payload,
         senderId,
         "Do you want to add some caption? Write it down or type no",
       );
       return;
+    }
     case "provideCaption":
       return resolvePendingCaption(
         payload,

@@ -22,17 +22,17 @@ export const animalProfiles: Record<
   FeedType,
   { profile: StaticImageData; name: string; time: string }
 > = {
-  note: { profile: avatars["rabbit"], name: "little bunny", time: "just now" },
-  spotify: { profile: avatars["bear"], name: "honey bear", time: "8 min ago" },
-  youtube: { profile: avatars["cat"], name: "calico cat", time: "24 min ago" },
+  note: { profile: avatars["rabbit"], name: "Melo", time: "just now" },
+  spotify: { profile: avatars["cat"], name: "Nini", time: "8 min ago" },
+  youtube: { profile: avatars["bear"], name: "Bumsy", time: "24 min ago" },
   instagram: {
     profile: avatars["seal"],
-    name: "sleepy seal",
+    name: "Tofu",
     time: "1 hr ago",
   },
   facebook: {
     profile: avatars["otter"],
-    name: "pocket otter",
+    name: "Peanut",
     time: "yesterday",
   },
 };

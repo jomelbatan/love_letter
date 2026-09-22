@@ -1,5 +1,7 @@
 import Carrots from "@/public/covers/carrots.png";
 import Girl from "@/public/covers/girl.png";
+import Default from "@/public/covers/default.png";
+
 import Rabbit from "@/public/profile/rabbit.png";
 import Cat from "@/public/profile/cat.png";
 import Seal from "@/public/profile/seal.png";
@@ -13,6 +15,7 @@ import { StaticImageData } from "next/image";
 export const coverImages: Record<string, StaticImageData> = {
   melo: Carrots,
   nini: Girl,
+  default: Default,
 };
 
 export const avatars: Record<string, StaticImageData> = {

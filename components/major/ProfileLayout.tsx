@@ -10,6 +10,7 @@ import FriendsCard from "../cards/FriendsCard";
 import { AuthorProps } from "@/types/props";
 import { usePost } from "@/providers/PostProvider";
 import PostCardSkeleton from "../loaders/Skeleton";
+import AccountOwnership from "../cards/AccountOwnership";
 
 // Matches the 1rem (16px) gap used for top-4 / bottom-4
 const STICKY_OFFSET = 16;
@@ -94,8 +95,12 @@ export default function ProfileLayout({ author }: AuthorProps) {
           </aside>
 
           <main className="space-y-4">
-            {author.name !== "Melo" && <Locked name={author.name} />}
-
+            {author.privacy &&
+              author.privacy === "PRIVATE" &&
+              posts.length === 0 && <Locked name={author.name} />}
+            {author.status && author.status === "VACANT" && (
+              <AccountOwnership />
+            )}
             <div className="bg-pure-chalk rounded-xl p-3.5 border border-soft-dust flex items-center justify-between">
               <h2 className="text-xl font-kalam-bold text-deep-charcoal">
                 Posts

@@ -44,7 +44,7 @@ export default function ShareButton() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="w-full item-center justify-center px-4 py-2 border-2 border-chalk-terracotta flex flex-row gap-2 rounded-xl cursor-pointer"
+        className="item-center justify-center px-4 py-2 border-2 border-chalk-terracotta flex flex-row gap-2 rounded-xl cursor-pointer"
       >
         <Share2 className="text-chalk-terracotta size-5" />
         <p className="hidden lg:flex text-chalk-terracotta font-kalam-bold">
@@ -64,7 +64,7 @@ export default function ShareButton() {
           >
             <div className="mb-4 flex items-center justify-between">
               <h2 className=" text-base font-kalam-bold font-semibold text-chalk-terracotta">
-                Share this link
+                Share this profile
               </h2>
               <button
                 onClick={() => setOpen(false)}

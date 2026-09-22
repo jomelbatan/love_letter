@@ -68,23 +68,15 @@ export function extractAttachmentUrl(
   attachments: any[],
 ): { type: string; url: string | null } | null {
   const firstAttachment = attachments[0];
-  const type: string = firstAttachment?.type || "";
-  const rawUrl: string = firstAttachment?.payload?.url || "";
+
+  const type = firstAttachment?.type || "";
+  const rawUrl = firstAttachment?.payload?.url || "";
 
   if (!rawUrl) return null;
 
-  // If it's a reel, strip everything starting from '?'
-  if (type === "reel" || rawUrl.includes("/reel/")) {
-    const cleanUrl = rawUrl.split("?")[0];
-    return {
-      type: type,
-      url: cleanUrl,
-    };
-  }
-
   return {
     type,
-    url: rawUrl,
+    url: rawUrl.split("?")[0],
   };
 }
 

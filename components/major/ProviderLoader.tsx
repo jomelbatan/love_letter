@@ -27,9 +27,7 @@ export default function ProviderLoader({
     { authorId: author._id },
     { initialNumItems: 9 },
   );
-  const friendsCount = useQuery(api.follows.getFriendCount, {
-    authorId: author._id,
-  });
+
   const photos = useQuery(api.photos.getUserPhotos, { authorId: author._id });
   const {
     results: playlist,
@@ -46,7 +44,7 @@ export default function ProviderLoader({
     <ProfileProvider
       friends={friends}
       friendsLoading={friendsLoading}
-      friendsCount={friendsCount ?? 0}
+      friendsCount={author.friendCount ?? 0}
     >
       <PostProvider
         posts={posts}
