@@ -47,7 +47,6 @@ export function verifySignature(
 }
 
 export async function parseContent(text: string) {
-  console.log("TExt: ", text);
   const urlRegex = /https?:\/\/[^\s]+/i;
   const match = text.match(urlRegex);
 
