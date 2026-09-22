@@ -20,7 +20,6 @@ export function classifyIntent(
       attachment.type === "ig_reel" ||
       attachment.type === "ig_post") &&
     attachment.url;
-  console.log("Attachment: ", attachment);
   if (pendingDelete)
     return { kind: "confirmDelete", pending: pendingDelete, text: messageText };
   if (deleteCommandMatch)

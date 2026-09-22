@@ -85,7 +85,14 @@ export function getTimeAgo(timestamp: number): string {
 
   // Yesterday
   if (daysAgo === 1) {
-    return "yesterday";
+    return (
+      "yesterday" +
+      " at " +
+      date.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+      })
+    );
   }
 
   // Older — same year

@@ -67,6 +67,7 @@ export function extractAttachmentUrl(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   attachments: any[],
 ): { type: string; url: string | null } | null {
+  console.log("Attachment: ", attachments);
   const firstAttachment = attachments[0];
 
   const type = firstAttachment?.type || "";
