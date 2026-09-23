@@ -12,17 +12,14 @@ import { usePost } from "@/providers/PostProvider";
 import PostCardSkeleton from "../loaders/Skeleton";
 import AccountOwnership from "../cards/AccountOwnership";
 
-// How far the aside sits from the top of the viewport when it's pinned to
-// the top (short content), vs from the bottom when it's pinned to the
-// bottom (tall content).
-const STICKY_TOP_OFFSET = 98;
-const STICKY_BOTTOM_OFFSET = 16;
+// Matches the 1rem (16px) gap used for top-4 / bottom-4
+const STICKY_OFFSET = 16;
 
 export default function ProfileLayout({ author }: AuthorProps) {
   const { posts, loadMore, status, isLoading } = usePost();
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const asideContentRef = useRef<HTMLDivElement>(null);
-  const [stickyTop, setStickyTop] = useState(STICKY_TOP_OFFSET);
+  const [stickyTop, setStickyTop] = useState(STICKY_OFFSET);
 
   const isLoadingMore = status === "LoadingMore";
   const hasMore = status === "CanLoadMore";
@@ -34,18 +31,13 @@ export default function ProfileLayout({ author }: AuthorProps) {
     const evaluate = () => {
       const contentHeight = element.scrollHeight;
       const viewportHeight = window.innerHeight;
+      const available = viewportHeight - STICKY_OFFSET * 2;
 
-      // Clamp top so the aside never sticks below STICKY_TOP_OFFSET (short
-      // content stays pinned 100px from the top), and never sticks above the
-      // point where its bottom edge meets STICKY_BOTTOM_OFFSET from the
-      // bottom (tall content pins 16px from the bottom instead, scrolling
-      // its top edge off-screen as needed).
-      const clampedTop = Math.min(
-        STICKY_TOP_OFFSET,
-        viewportHeight - contentHeight - STICKY_BOTTOM_OFFSET,
-      );
-
-      setStickyTop(clampedTop);
+      if (contentHeight <= available) {
+        setStickyTop(STICKY_OFFSET);
+      } else {
+        setStickyTop(viewportHeight - contentHeight - STICKY_OFFSET);
+      }
     };
 
     evaluate();
