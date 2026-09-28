@@ -12,6 +12,7 @@ import type * as author from "../author.js";
 import type * as authorAccount from "../authorAccount.js";
 import type * as cron from "../cron.js";
 import type * as follows from "../follows.js";
+import type * as libs_meta from "../libs/meta.js";
 import type * as notes from "../notes.js";
 import type * as photos from "../photos.js";
 import type * as post from "../post.js";
@@ -27,6 +28,7 @@ declare const fullApi: ApiFromModules<{
   authorAccount: typeof authorAccount;
   cron: typeof cron;
   follows: typeof follows;
+  "libs/meta": typeof libs_meta;
   notes: typeof notes;
   photos: typeof photos;
   post: typeof post;

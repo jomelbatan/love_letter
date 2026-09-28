@@ -7,6 +7,7 @@ import {
 } from "./_generated/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
+import { sendReply } from "./libs/meta";
 
 export const getTimeline = query({
   args: {},
@@ -275,13 +276,35 @@ export const finalizeStalePendingPostRecord = internalMutation({
 });
 
 export const finalizeStalePendingPost = internalAction({
-  args: { pendingPostId: v.id("pendingPosts") },
+  args: {
+    pendingPostId: v.id("pendingPosts"),
+  },
+
   handler: async (ctx, args) => {
     const result = await ctx.runMutation(
       internal.post.finalizeStalePendingPostRecord,
-      { pendingPostId: args.pendingPostId },
+      {
+        pendingPostId: args.pendingPostId,
+      },
     );
-    if (!result) return;
+
+    if (!result) return null;
+
+    const response = await sendReply(
+      result.platform,
+      result.psid,
+      `Your post has been published, ${result.authorName}!`,
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Meta API error:", data);
+
+      throw new Error(`Failed to send Meta reply: ${JSON.stringify(data)}`);
+    }
+
+    return;
   },
 });
 
