@@ -293,7 +293,7 @@ export const finalizeStalePendingPost = internalAction({
     const response = await sendReply(
       result.platform,
       result.psid,
-      `Your post has been published, ${result.authorName}!`,
+      `${result.authorName} shared it to their timeline 💌`,
     );
 
     const data = await response.json();
