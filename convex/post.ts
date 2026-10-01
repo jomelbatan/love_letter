@@ -141,25 +141,6 @@ export const getPendingDelete = query({
   },
 });
 
-export const savePendingDelete = mutation({
-  args: {
-    psid: v.string(),
-    postId: v.id("posts"),
-  },
-  handler: async (ctx, args) => {
-    const author = await ctx.db
-      .query("authorAccounts")
-      .withIndex("by_psid", (q) => q.eq("psid", args.psid))
-      .first();
-
-    if (!author) throw new Error("Author account not found");
-
-    await ctx.db.patch(author._id, {
-      pendingDeletePostId: args.postId,
-    });
-  },
-});
-
 export const clearPendingDelete = mutation({
   args: { psid: v.string() },
   handler: async (ctx, args) => {
@@ -176,17 +157,35 @@ export const clearPendingDelete = mutation({
   },
 });
 
+export const savePendingDelete = mutation({
+  args: { psid: v.string(), postId: v.id("posts") },
+  handler: async (ctx, { psid, postId }) => {
+    const account = await ctx.db
+      .query("authorAccounts")
+      .withIndex("by_psid", (q) => q.eq("psid", psid))
+      .unique();
+    if (!account) throw new Error("Author account not found");
+
+    const post = await ctx.db.get(postId);
+    if (!post) throw new Error("Post not found");
+    if (post.authorId !== account.authorId) throw new Error("Not your post");
+
+    await ctx.db.patch(account._id, { pendingDeletePostId: postId });
+  },
+});
 export const deletePost = mutation({
   args: { postId: v.id("posts"), authorId: v.id("authors") },
   handler: async (ctx, args) => {
     const author = await ctx.db.get(args.authorId);
-    const existing = await ctx.db.get(args.postId);
-    if (existing && author) {
-      await ctx.db.delete(existing._id);
-      ctx.db.patch(author._id, {
-        postCount: author!.postCount - 1,
-      });
-    }
+    if (!author) throw new Error("Author account not found");
+    const post = await ctx.db.get(args.postId);
+    if (!post) throw new Error("Post not found");
+    if (post.authorId !== author._id) throw new Error("Not your post");
+
+    await ctx.db.delete(post._id);
+    ctx.db.patch(author._id, {
+      postCount: author!.postCount - 1,
+    });
   },
 });
 
