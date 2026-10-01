@@ -31,14 +31,6 @@ export default async function UserTimeline({ params }: Props) {
         <Hero author={author} note={note} />
         <ProfileNav author={author} />
       </div>
-      <Script async src="https://www.instagram.com/embed.js" />
-      <Script
-        async
-        defer
-        crossOrigin="anonymous"
-        src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v26.0"
-      ></Script>
-      <Script src="https://www.youtube.com/iframe_api" async />
     </>
   );
 }

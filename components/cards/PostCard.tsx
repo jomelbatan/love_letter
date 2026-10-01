@@ -11,15 +11,24 @@ import { CopyButton } from "../button/CopyButton";
 import { Instagram } from "../micro/Instagram";
 import YouTubeMusic from "../micro/YoutubeMusic";
 import { MentionText } from "../micro/MentionText";
+import { SimpleShareButton } from "../button/SimpleShareButton";
+import { getPostUrl } from "@/libs/format";
+import Watermark from "../micro/Watermark";
+import Link from "next/link";
 
 export default function PostCard({
   post,
   author,
+  watermark = false,
+  disableAuthorLink = true,
 }: {
   post: Doc<"posts">;
   author: Doc<"authors">;
+  watermark?: boolean;
+  disableAuthorLink?: boolean;
 }) {
   if (!post) return;
+  const postUrl = getPostUrl(author.name, post._id);
   return (
     <article className="relative bg-pure-chalk rounded-xl p-4 border border-soft-dust space-y-3 flex h-fit flex-col items-center">
       <div className="flex w-full items-start justify-between">
@@ -34,7 +43,15 @@ export default function PostCard({
           </div>
           <div>
             <div className="flex items-center gap-1">
-              <span className="font-kalam-bold text-2xl">{author.name}</span>
+              {disableAuthorLink ? (
+                <span className="font-kalam-bold text-2xl">{author.name}</span>
+              ) : (
+                <Link href={`/${author.name.toLowerCase()}`}>
+                  <span className="font-kalam-bold text-2xl">
+                    {author.name}
+                  </span>
+                </Link>
+              )}
               <BadgeCheck className="size-5" />
             </div>
             <div className="flex items-center text-xs text-zinc-400">
@@ -45,7 +62,10 @@ export default function PostCard({
           </div>
         </div>
 
-        <CopyButton textToCopy={post._id} />
+        <div className="flex flex-row gap-4">
+          <SimpleShareButton textToCopy={postUrl} />
+          <CopyButton textToCopy={post._id} />
+        </div>
       </div>
       {post.text && (
         <p className="px-2 w-full text-3xl font-bold font-yuyu text-deep-charcoal  leading-none">
@@ -64,6 +84,7 @@ export default function PostCard({
         <YouTubeMusic post={post} />
       )}
       {post.embedUrl && post.embedType === "SPOTIFY" && <Spotify post={post} />}
+      {watermark && <Watermark />}
     </article>
   );
 }

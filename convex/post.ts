@@ -9,6 +9,22 @@ import { v } from "convex/values";
 import { internal } from "./_generated/api";
 import { sendReply } from "./libs/meta";
 
+export const getPost = query({
+  args: { postId: v.string() },
+  handler: async (ctx, args) => {
+    const postId = ctx.db.normalizeId("posts", args.postId);
+    if (!postId) return null;
+
+    const post = await ctx.db.get(postId);
+    if (!post) return null;
+
+    const author = await ctx.db.get(post.authorId);
+    if (!author) return null;
+
+    return { post, author };
+  },
+});
+
 export const getTimeline = query({
   args: {},
   handler: async (ctx) => {

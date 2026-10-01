@@ -12,3 +12,9 @@ export function capitalizeFirstLetter(str: string): string {
   if (!str) return str;
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+export function getPostUrl(authorName: string, postId: string) {
+  return `${process.env.NEXT_PUBLIC_VERCEL_DEV_ORIGIN}/${encodeURIComponent(
+    authorName,
+  ).toLocaleLowerCase()}/post/${postId}`;
+}
