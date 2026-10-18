@@ -143,9 +143,7 @@ export default function ProfileLayout({ author }: AuthorProps) {
               {isLoadingMore ? (
                 <PostCardSkeleton />
               ) : hasMore ? (
-                <span className="text-3xl font-kalam-bold text-deep-charcoal text-center">
-                  Loading more when you get closer...
-                </span>
+                <PostCardSkeleton />
               ) : posts.length > 0 ? (
                 <span className="  text-3xl font-kalam-bold text-deep-charcoal text-center">{`You've reached the end`}</span>
               ) : null}

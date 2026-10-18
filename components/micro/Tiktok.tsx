@@ -11,7 +11,7 @@ export default function Tiktok({ post }: VideoPostProps) {
       <iframe
         src={embedUrl}
         className="absolute top-0 left-0 w-full h-full"
-        allow="autoplay; encrypted-media; fullscreen"
+        allow=" encrypted-media; fullscreen"
         allowFullScreen
         title="TikTok video player"
       />

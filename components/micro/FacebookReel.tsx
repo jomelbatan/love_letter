@@ -14,22 +14,8 @@ export function FacebookReel({ post }: VideoPostProps) {
     post.embedUrl?.includes("photo") || post.embedUrl?.includes("post");
 
   useEffect(() => {
-    const process = () => {
-      if (window.FB && containerRef.current) {
-        window.FB.XFBML.parse(containerRef.current);
-      }
-    };
-
-    if (window.FB) {
-      process();
-    } else {
-      const id = setTimeout(() => {
-        if (window.FB) {
-          clearInterval(id);
-          process();
-        }
-      }, 3000);
-      return () => clearInterval(id);
+    if (window.FB && containerRef.current) {
+      window.FB.XFBML.parse(containerRef.current);
     }
   }, [post.embedUrl]);
 

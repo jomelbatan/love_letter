@@ -7,22 +7,8 @@ export function Instagram({ post }: PostProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const process = () => {
-      if (window.instgrm && containerRef.current) {
-        window.instgrm.Embeds.process(containerRef.current);
-      }
-    };
-
-    if (window.instgrm) {
-      process();
-    } else {
-      const id = setTimeout(() => {
-        if (window.instgrm) {
-          clearInterval(id);
-          process();
-        }
-      }, 3000);
-      return () => clearInterval(id);
+    if (window.instgrm && containerRef.current) {
+      window.instgrm.Embeds.process(containerRef.current);
     }
   }, [post.embedUrl]);
 
